@@ -1,5 +1,6 @@
 import random
 from utils.extract_url import extract_url
+from utils.extract_url import check_url_twitter
 from utils.text_meme import check_meme
 from utils.logger import debug
 from handlers.youtube import handle_youtube_video, handle_youtube_audio
@@ -30,8 +31,11 @@ def resolve_handler(url):
         return "reddit", handle_reddit, url
 
     if "x.com" in url or "nitter.poast.org" in url:
-        normalized_url = url.replace("nitter.poast.org", "x.com")
-        return "twitter", handle_twitter, normalized_url
+        if not check_url_twitter(url):
+            return None, None, None
+        else:
+            normalized_url = url.replace("nitter.poast.org", "x.com")
+            return "twitter", handle_twitter, normalized_url
 
     return None, None, None
 
