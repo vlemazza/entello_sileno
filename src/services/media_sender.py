@@ -22,9 +22,9 @@ class TelegramMediaSender:
                     reply_to_message_id=self.message.message_id,
                 )
         except TimedOut as e:
-            error("[%s] Timeout while sending video. %s", self.source_name, exc)
+            error("[%s] Timeout while sending video. %s", self.source_name, e)
         except Exception as e:
-            await self._reply_error(f"[{self.source_name}] Error sending video: {exc}")
+            await self._reply_error(f"[{self.source_name}] Error sending video: {e}")
 
     async def send_audio(self, audio_path, caption=None, parse_mode=None):
         try:
@@ -37,9 +37,9 @@ class TelegramMediaSender:
                     reply_to_message_id=self.message.message_id,
                 )
         except TimedOut as e:
-            error("[%s] Timeout while sending audio. %s", self.source_name, exc)
+            error("[%s] Timeout while sending audio. %s", self.source_name, e)
         except Exception as e:
-            await self._reply_error(f"[{self.source_name}] Error sending audio: {exc}")
+            await self._reply_error(f"[{self.source_name}] Error sending audio: {e}")
 
     async def send_text(self, text, parse_mode=None):
         await self.message.reply_text(
@@ -104,7 +104,7 @@ class TelegramMediaSender:
                     reply_to_message_id=self.message.message_id,
                 )
         except Exception as e:
-            error("[%s] Error sending media list: %s", self.source_name, exc)
+            error("[%s] Error sending media list: %s", self.source_name, e)
             await self._reply_error(f"[{self.source_name}] Errore durante l'invio del contenuto.")
 
     async def _send_single_media(self, media, caption=None, parse_mode=None):
@@ -145,7 +145,7 @@ class TelegramMediaSender:
                     reply_to_message_id=self.message.message_id,
                 )
         except Exception as e:
-            error("[%s] Error sending sticker: %s", self.source_name, exc)
+            error("[%s] Error sending sticker: %s", self.source_name, e)
             await self.message.reply_text(
                 text,
                 reply_to_message_id=self.message.message_id,

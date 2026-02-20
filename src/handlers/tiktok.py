@@ -51,7 +51,7 @@ async def handle_tiktok(update, context, url):
             await sender.send_video(video_path, caption=caption, parse_mode="HTML")
 
     except Exception as e:
-        error("[TikTok] Error download: %s", exc)
+        error("[TikTok] Error download: %s", e)
         await update.message.reply_text(
             "[TikTok] Errore durante il download del contenuto.",
             reply_to_message_id=update.message.message_id

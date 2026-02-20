@@ -50,7 +50,7 @@ async def handle_twitter(update, context, url):
         )
 
     except Exception as e:
-        error("[Twitter] Errore nel download: %s", exc)
+        error("[Twitter] Errore nel download: %s", e)
         await update.message.reply_text(
             "[Twitter] Errore durante il download del contenuto.",
             reply_to_message_id=update.message.message_id

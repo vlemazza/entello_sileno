@@ -24,7 +24,7 @@ async def handle_instagram(update, context, url):
         )
 
     except Exception as e:
-        error("[Instagram] Errore nel download: %s", exc)
+        error("[Instagram] Errore nel download: %s", e)
         await update.message.reply_text(
             "[Instagram] Errore durante il download del contenuto.",
             reply_to_message_id=update.message.message_id

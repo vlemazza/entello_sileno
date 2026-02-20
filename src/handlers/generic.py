@@ -15,7 +15,7 @@ async def handle_generic(update, context, url):
         await sender.send_video(video_path)
 
     except Exception as e:
-        error("[Generic] Error download video %s", exc)
+        error("[Generic] Error download video %s", e)
         return
 
     finally:

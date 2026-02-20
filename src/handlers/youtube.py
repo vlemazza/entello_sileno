@@ -2,6 +2,7 @@ from downloaders.youtube_downloader import YouTubeDownloader
 from services.caption_builder import build_youtube_caption
 from services.media_sender import TelegramMediaSender
 from utils.logger import debug, error
+from yt_dlp.utils import DownloadError
 
 async def handle_youtube_video(update, context, url):
     downloader = YouTubeDownloader()
@@ -18,9 +19,12 @@ async def handle_youtube_video(update, context, url):
 
         caption = build_youtube_caption(title, description, author, url)
         await sender.send_video(video_path, caption=caption, parse_mode="HTML")
-    except Exception as e:
-        error("[YouTube] Error download video %s", exc)
-        return
+    except DownloadError, Exception as e:
+        error("[YouTube] Error download video %s", e)
+        await update.message.reply_text(
+            "[YouTube] Errore durante il download del contenuto.",
+            reply_to_message_id=update.message.message_id
+        )
 
     finally:
         downloader.cleanup()
@@ -38,9 +42,12 @@ async def handle_youtube_audio(update, context, url):
 
         await sender.send_audio(audio_path)
 
-    except Exception as e:
-        error("[YouTube] Error download audio %s", exc)
-        return
+    except DownloadError, Exception as e:
+        error("[YouTube] Error download video %s", e)
+        await update.message.reply_text(
+            "[YouTube] Errore durante il download del contenuto.",
+            reply_to_message_id=update.message.message_id
+        )
 
     finally:
         downloader.cleanup()

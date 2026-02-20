@@ -22,7 +22,7 @@ async def handle_reddit(update, context, url):
         )
 
     except Exception as e:
-        error("[Reddit] Errore nel download: %s", exc)
+        error("[Reddit] Errore nel download: %s", e)
         await update.message.reply_text(
             "[Reddit] Errore durante il download del contenuto.",
             reply_to_message_id=update.message.message_id

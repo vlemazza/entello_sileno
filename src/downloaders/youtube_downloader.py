@@ -37,7 +37,7 @@ class YouTubeDownloader(VideoDownloader):
             uploader = info.get('uploader', 'unknown')
 
             if duration > self.max_duration:
-                raise ValueError("[YouTubeDownloader] video exceeds %s", self.max_duration)
+                raise ValueError(f"[YouTubeDownloader] video exceeds {self.max_duration}s")
 
             ydl.download([url])
 

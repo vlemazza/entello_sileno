@@ -37,8 +37,8 @@ class VideoDownloader:
             try:
                 ydl.download([url])
             except DownloadError as e:
-                error(f"[VideoDownloader] Error download media: {exc}\n{traceback.format_exc()}")
-                raise RuntimeError("[VideoDownloader] download failed") from exc
+                error(f"[VideoDownloader] Error download media: {e}\n{traceback.format_exc()}")
+                raise RuntimeError("[VideoDownloader] download failed") from e
 
         if not os.path.exists(self.original_path):
             
