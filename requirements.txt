@@ -1,0 +1,8 @@
+python-telegram-bot[ext]
+instaloader
+python-dotenv
+aiofiles
+gallery-dl
+RedDownloader
+bs4
+yt-dlp

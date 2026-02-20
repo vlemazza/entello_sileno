@@ -1,0 +1,21 @@
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: entellobot
+    env_file:
+      - .env
+    restart: unless-stopped
+    volumes:
+      - ./src:/app:cached
+      - ./waiting_messages.json:/bot/waiting_messages.json
+      - ./banana.opus:/bot/banana.opus
+      - ./india.opus:/bot/india.opus
+      - ./captain.opus:/bot/captain.opus
+      - ./stelio.opus:/bot/stelio.opus
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 512M
