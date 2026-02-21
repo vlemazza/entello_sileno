@@ -22,7 +22,7 @@ async def handle_bot_added_group(update: Update, context: ContextTypes.DEFAULT_T
     debug("[Events] bot aggiunto nel gruppo %s", chat.id)
 
     await chat.send_message(
-        "La scimmia è con te!.\n\n"
+        "La scimmia è con te!\n\n"
         "Manda un link e lo scaricherà.\n\n"
 
         "*Supporto:*\n"
@@ -49,7 +49,7 @@ async def handle_bot_added_group(update: Update, context: ContextTypes.DEFAULT_T
 
         "Nessuna scimmia viene maltratta!\n\n"
 
-        "open source [repo github](https://github.com/vlemazza/entello_sileno)",
+        "==> open source [repo github](https://github.com/vlemazza/entello_sileno) <==",
 
         parse_mode="Markdown"
 )
