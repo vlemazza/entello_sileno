@@ -10,10 +10,7 @@ services:
     volumes:
       - ./src:/app:cached
       - ./waiting_messages.json:/bot/waiting_messages.json
-      - ./banana.opus:/bot/banana.opus
-      - ./india.opus:/bot/india.opus
-      - ./captain.opus:/bot/captain.opus
-      - ./stelio.opus:/bot/stelio.opus
+      - ./audio:/audio
     deploy:
       resources:
         limits:

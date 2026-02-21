@@ -32,6 +32,14 @@ async def handle_bot_added_group(update: Update, context: ContextTypes.DEFAULT_T
             "- Reddit  video, immagini\n"
             "- Twitter  video, immagini, testo e fanculo Musk\n\n"
 
+        "*Prossimamente:*\n"
+            "- Facebook\n"
+            "- Threads\n"
+            "- Vines\n"
+            "- Bluesky\n\n"
+
+        "Chiedete e sarà aggiunto\n\n"
+
         "*How to asteriscare:*\n"
         "- `*` prima di un link YouTube scarica solo audio\n"
         "  esempio: `*https://www.youtube.com/watch?v=dQw4w9WgXcQ`\n\n"

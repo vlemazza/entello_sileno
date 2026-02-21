@@ -14,8 +14,6 @@ Self-hosted Telegram bot media downloader with scimmia inside.
 - **Reddit**: videos and images
 - **Twitter**: media + post text
 
----
-
 ## Environment configuration file
 
 Fill in the `.env` file:

@@ -22,8 +22,8 @@ async def check_meme(update, text):
             last_sent_meme_key=(update.effective_chat.id, audio_file)
             last_sent_meme=COOLDOWN_GROUPS.get(last_sent_meme_key, 0)
             if(actual_time - last_sent_meme >= COOLDOWN_SECONDS):
-                if os.path.exists(audio_file):
-                    with open(audio_file, "rb") as audio:
+                if os.path.exists("/audio/" + audio_file):
+                    with open("/audio/" + audio_file, "rb") as audio:
                         COOLDOWN_GROUPS[last_sent_meme_key]=actual_time
                         await update.message.reply_audio(
                             audio=audio,
