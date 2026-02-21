@@ -1,4 +1,4 @@
 /src/session/*
 .env
-*/__pycache__
+*__pycache__
 src/downloaders/__pycache__/instagram_downloader.cpython-314.pyc

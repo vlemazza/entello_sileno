@@ -3,12 +3,12 @@ from utils.extract_url import extract_url
 from utils.extract_url import check_url_twitter
 from utils.text_meme import check_meme
 from utils.logger import debug
-from handlers.youtube import handle_youtube_video, handle_youtube_audio
-from handlers.instagram import handle_instagram
-from handlers.tiktok import handle_tiktok
-from handlers.reddit import handle_reddit
-from handlers.twitter import handle_twitter
-from handlers.generic import handle_generic
+from handlers.dispatchers.youtube import handle_youtube_video, handle_youtube_audio
+from handlers.dispatchers.instagram import handle_instagram
+from handlers.dispatchers.tiktok import handle_tiktok
+from handlers.dispatchers.reddit import handle_reddit
+from handlers.dispatchers.twitter import handle_twitter
+from handlers.dispatchers.generic import handle_generic
 from utils.waiting_message_loader import get_waiting_messages
 from utils.permissions import chat_not_in_list, inform_user
 
