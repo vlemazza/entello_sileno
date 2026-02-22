@@ -13,7 +13,7 @@ Self-hosted Telegram bot media downloader with scimmia inside.
 - **TikTok**: videos and images
 - **Reddit**: videos and images
 - **Twitter**: media + post text
-- **Bluesky**: media + post text
+- **Bluesky**: media + post texts
 
 ## Environment configuration file
 
