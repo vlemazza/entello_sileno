@@ -9,6 +9,7 @@ from handlers.dispatchers.tiktok import handle_tiktok
 from handlers.dispatchers.reddit import handle_reddit
 from handlers.dispatchers.twitter import handle_twitter
 from handlers.dispatchers.generic import handle_generic
+from handlers.dispatchers.bluesky import handle_bluesky
 from utils.waiting_message_loader import get_waiting_messages
 from utils.permissions import chat_not_in_list, inform_user
 
@@ -36,6 +37,8 @@ def resolve_handler(url):
         else:
             normalized_url = url.replace("nitter.poast.org", "x.com")
             return "twitter", handle_twitter, normalized_url
+    if "bsky.app" in url:
+        return "bluesky", handle_bluesky, url
 
     return None, None, None
 
