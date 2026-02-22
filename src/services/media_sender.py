@@ -46,6 +46,7 @@ class TelegramMediaSender:
             text=text,
             parse_mode=parse_mode,
             reply_to_message_id=self.message.message_id,
+            disable_web_page_preview=True,
         )
 
     async def send_media_list(
