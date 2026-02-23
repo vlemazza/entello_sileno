@@ -10,6 +10,7 @@ from handlers.dispatchers.reddit import handle_reddit
 from handlers.dispatchers.twitter import handle_twitter
 from handlers.dispatchers.generic import handle_generic
 from handlers.dispatchers.bluesky import handle_bluesky
+from services.db.dao_db import get_chat_settings, is_downloader_disabled
 from utils.waiting_message_loader import get_waiting_messages
 from utils.permissions import chat_not_in_list, inform_user
 
@@ -19,8 +20,8 @@ def resolve_handler(url):
 
     if "youtube.com" in url or "youtu.be" in url:
         if "*" in url:
-            return "youtube audio", handle_youtube_audio, url.lstrip("*")
-        return "youtube video", handle_youtube_video, url
+            return "youtube", handle_youtube_audio, url.lstrip("*")
+        return "youtube", handle_youtube_video, url
 
     if "instagram.com" in url:
         return "instagram", handle_instagram, url
@@ -52,19 +53,25 @@ async def url_handler(update, context):
         await inform_user(update)
         return
 
+    settings = get_chat_settings(update.effective_chat.id)
     text = message.text
 
-    await check_meme(update, text)
+    if settings.memes_enabled:
+        await check_meme(update, text)
 
     url = extract_url(text)
     if not url:
         return
 
-    source, handler, target_url = resolve_handler(url)
+    source_service, handler, target_url = resolve_handler(url)
     if handler is None:
         return
 
-    debug("[Dispatchers] detected %s url", source)
+    if is_downloader_disabled(update.effective_chat.id, source_service):
+        debug("[Dispatchers] %s disabilitato per chat %s", source_service, update.effective_chat.id)
+        return
+
+    debug("[Dispatchers] detected %s url", source_service)
 
     waiting_texts = await get_waiting_messages()
     waiting_message = await update.message.reply_text(
