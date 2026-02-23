@@ -10,6 +10,7 @@ from handlers.dispatchers.reddit import handle_reddit
 from handlers.dispatchers.twitter import handle_twitter
 from handlers.dispatchers.generic import handle_generic
 from handlers.dispatchers.bluesky import handle_bluesky
+from handlers.dispatchers.facebook import handle_facebook
 from services.db.dao_db import get_chat_settings, is_downloader_disabled
 from utils.waiting_message_loader import get_waiting_messages
 from utils.permissions import chat_not_in_list, inform_user
@@ -25,6 +26,9 @@ def resolve_handler(url):
 
     if "instagram.com" in url:
         return "instagram", handle_instagram, url
+    
+    if "facebook.com" in url:
+        return "facebook", handle_facebook, url
 
     if "tiktok.com" in url:
         return "tiktok", handle_tiktok, url

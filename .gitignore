@@ -3,3 +3,5 @@
 *__pycache__
 src/downloaders/__pycache__/instagram_downloader.cpython-314.pyc
 .vscode/settings.json
+src/services/db/repository.py
+db/

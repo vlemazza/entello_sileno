@@ -16,6 +16,15 @@ def build_instagram_caption(title, description, author, url):
     )
 
 
+def build_facebook_caption(title, description, author, url):
+    return (
+        f"<b>{title}</b>\n"
+        f"<blockquote>{description}</blockquote>\n"
+        f"<i>{author}</i>\n"
+        f'Source: <a href="{url}">Facebook</a>'
+    )
+
+
 def build_tiktok_video_caption(title, description, author, url):
     return (
         f"<b>{title}</b>\n"
