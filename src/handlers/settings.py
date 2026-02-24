@@ -15,6 +15,7 @@ DOWNLOADER_LABELS = {
     "reddit": "Reddit",
     "twitter": "Twitter",
     "bluesky": "Bluesky",
+    "facebook": "Facebook",
     "generic": "Generic (**)",
 }
 
@@ -57,7 +58,6 @@ def _build_settings_text(chat_id: int):
         "*Impostazioni chat*\n\n"
         f"- Meme: {meme_state}\n"
         f"- Downloader disabilitati: {disabled_labels}\n\n"
-        "Usa i pulsanti per attivare/disattivare."
     )
 
 

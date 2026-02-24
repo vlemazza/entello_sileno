@@ -7,6 +7,7 @@ SUPPORTED_DOWNLOADERS = (
     "reddit",
     "twitter",
     "bluesky",
+    "facebook",
     "generic",
 )
 
