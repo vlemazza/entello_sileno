@@ -5,4 +5,4 @@ aiofiles
 gallery-dl
 RedDownloader
 bs4
-yt-dlp
+yt-dlp[default,curl-cffi]

@@ -13,6 +13,7 @@ class VideoDownloader:
         self.temp_dir = tempfile.mkdtemp()
         self.original_path = os.path.join(self.temp_dir, "video_original.mp4")
         self.compressed_path = os.path.join(self.temp_dir, "video_compressed.mp4")
+        self.IMPERSONATE_BROWSER = "Firefox-135"
 
     async def download_video(self, url):
         self.reset_temp_dir()

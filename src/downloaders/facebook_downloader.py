@@ -20,8 +20,9 @@ class FacebookDownloader(VideoDownloader):
         cmd = [
             "yt-dlp",
             "--no-playlist",
-            "--cookies", self.cookies_file,
+            #"--cookies", self.cookies_file,
             "-f", "bv*+ba/best",
+            "--impersonate", self.IMPERSONATE_BROWSER,
             "-o", output_template,
             url
         ]
@@ -63,7 +64,7 @@ class FacebookDownloader(VideoDownloader):
         info_cmd = [
             "yt-dlp",
             "--dump-single-json",
-            "--cookies", self.cookies_file,
+            #"--cookies", self.cookies_file,
             url
         ]
         result = subprocess.run(info_cmd, capture_output=True, text=True, check=True)
