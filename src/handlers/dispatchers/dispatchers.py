@@ -1,6 +1,7 @@
 import random
 from utils.extract_url import extract_url
 from utils.extract_url import check_url_twitter
+from utils.extract_url import normalize_threads_embed_url
 from utils.text_meme import check_meme
 from utils.logger import debug
 from handlers.dispatchers.youtube import handle_youtube_video, handle_youtube_audio
@@ -11,6 +12,7 @@ from handlers.dispatchers.twitter import handle_twitter
 from handlers.dispatchers.generic import handle_generic
 from handlers.dispatchers.bluesky import handle_bluesky
 from handlers.dispatchers.facebook import handle_facebook
+from handlers.dispatchers.threads import handle_threads
 from services.db.dao_db import get_chat_settings, is_downloader_disabled
 from utils.waiting_message_loader import get_waiting_messages
 from utils.permissions import chat_not_in_list, inform_user
@@ -44,6 +46,9 @@ def resolve_handler(url):
             return "twitter", handle_twitter, normalized_url
     if "bsky.app" in url:
         return "bluesky", handle_bluesky, url
+
+    if "threads" in url:
+        return "threads", handle_threads, normalize_threads_embed_url(url)
 
     return None, None, None
 

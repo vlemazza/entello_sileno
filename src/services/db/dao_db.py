@@ -8,6 +8,7 @@ SUPPORTED_DOWNLOADERS = (
     "twitter",
     "bluesky",
     "facebook",
+    "threads",
     "generic",
 )
 

@@ -16,6 +16,7 @@ DOWNLOADER_LABELS = {
     "twitter": "Twitter",
     "bluesky": "Bluesky",
     "facebook": "Facebook",
+    "threads": "Threads",
     "generic": "Generic (**)",
 }
 

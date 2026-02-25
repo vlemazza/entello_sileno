@@ -33,11 +33,11 @@ async def handle_bot_added_group(update: Update, context: ContextTypes.DEFAULT_T
             "- Twitter  video, immagini, testo e fanculo Musk\n"
             "- Bluesky video, immagini, testo\n\n"
             "- Facebook video\n\n"
+            "- Threads video, immagini, testo\n\n"
 
 
         "*Prossimamente:*\n"
-            "- Threads\n"
-            "- Vines\n\n"
+            "- diVines\n\n"
 
         "Chiedete e sarà aggiunto\n\n"
 
