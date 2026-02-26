@@ -2,6 +2,7 @@ import random
 from utils.extract_url import extract_url
 from utils.extract_url import check_url_twitter
 from utils.extract_url import normalize_threads_embed_url
+from utils.extract_url import resolve_reddit_redirect
 from utils.text_meme import check_meme
 from utils.logger import debug
 from handlers.dispatchers.youtube import handle_youtube_video, handle_youtube_audio
@@ -36,7 +37,7 @@ def resolve_handler(url):
         return "tiktok", handle_tiktok, url
 
     if "reddit.com" in url:
-        return "reddit", handle_reddit, url
+        return "reddit", handle_reddit, resolve_reddit_redirect(url)
 
     if "x.com" in url or "nitter.poast.org" in url:
         if not check_url_twitter(url):

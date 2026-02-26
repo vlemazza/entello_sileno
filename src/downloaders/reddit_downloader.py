@@ -23,7 +23,9 @@ class RedditDownloader(VideoDownloader):
         self.reset_temp_dir()
         media_files = []
 
-        json_url = url.rstrip("/") + ".json"
+        json_url = url + "/.json"
+
+        print(json_url)
 
         r = requests.get(json_url, headers=self.headers)
         r.raise_for_status()
@@ -48,7 +50,7 @@ class RedditDownloader(VideoDownloader):
             )
 
             if video_url:
-                file_path = self._download_file(video_url)
+                file_path = self._download_video(video_url)
                 media_files.append({
                     "file_path": file_path,
                     "type": "video",
