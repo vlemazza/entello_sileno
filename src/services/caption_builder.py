@@ -43,8 +43,15 @@ def build_tiktok_photo_caption(title, description, author, url):
     )
 
 
-def build_reddit_caption(title, url):
-    return f"*{title}*\n Source: [Reddit]({url})"
+def build_reddit_caption(title, description, external_url, author, subreddit, url):
+    return (
+        f"<b>{title}</b>\n"
+        f"<i>{external_url}</i>\n"
+        f"<blockquote expandable>{description}</blockquote>\n"
+        f"<i>{subreddit}</i>\n"
+        f"<i>{author}</i>\n"
+        f'Source: <a href="{url}">Reddit</a>'
+    )
 
 
 def build_twitter_captions(content, user, url):
