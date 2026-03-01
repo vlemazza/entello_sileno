@@ -34,6 +34,8 @@ def resolve_handler(url):
         return "facebook", handle_facebook, url
 
     if "tiktok.com" in url:
+        if "*" in url:
+            return "tiktok", handle_tiktok_audio, url.lstrip("*")
         return "tiktok", handle_tiktok, url
 
     if "reddit.com" in url:

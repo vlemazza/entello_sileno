@@ -62,46 +62,40 @@ class YouTubeDownloader(VideoDownloader):
         self.reset_temp_dir()
 
         ydl_opts = {
-            'format': 'bestaudio/best',
-            'outtmpl': os.path.join(self.temp_dir, 'audio_original.%(ext)s'),
-            'quiet': True,
-            'no_warnings': True,
-            'overwrites': True,
-            'writethumbnail': True,
-            'addmetadata': True,
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '320',
-            },
-            {
-            'key': 'FFmpegMetadata',
-            },
-            {
-            'key': 'EmbedThumbnail',
-            }],
+            "format": "bestaudio/best",
+            "outtmpl": os.path.join(self.temp_dir, "%(title)s.%(ext)s"),
+            "quiet": True,
+            "no_warnings": True,
+            "overwrites": True,
+            "postprocessors": [
+                {
+                    "key": "FFmpegExtractAudio",
+                    "preferredcodec": "mp3",
+                    "preferredquality": "320",
+                },
+                {"key": "FFmpegMetadata"},
+                {"key": "EmbedThumbnail"},
+            ],
         }
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
-            title = info.get('title', 'unknown')
-            duration = info.get('duration', 0)
+
+            duration = info.get("duration", 0)
             if duration > self.max_duration:
                 raise ValueError(
                     f"[YouTubeDownloaderAudio] audio exceeds {self.max_duration}s"
                 )
 
-        audio_path = os.path.join(self.temp_dir, "audio_original.mp3")
+            final_path = ydl.prepare_filename(info)
+            final_path = os.path.splitext(final_path)[0] + ".mp3"
 
-        if not os.path.exists(audio_path):
+        if not os.path.exists(final_path):
             raise FileNotFoundError("Audio non trovato dopo il download.")
 
-        new_audio_path = os.path.join(self.temp_dir, f"{title}.mp3")
-        os.rename(audio_path, new_audio_path)
-
         return {
-            "media": [{"file_path": new_audio_path, "type": "audio"}],
-            "title": title,
+            "media": [{"file_path": final_path, "type": "audio"}],
+            "title": info.get("title", ""),
             "description": "",
             "author": "",
         }
