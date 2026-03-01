@@ -1,4 +1,5 @@
 import requests
+from yt_dlp.utils import DownloadError
 from downloaders.tiktok_downloader import TikTokDownloader
 from services.caption_builder import build_tiktok_photo_caption, build_tiktok_video_caption
 from services.media_sender import TelegramMediaSender
@@ -60,3 +61,27 @@ async def handle_tiktok(update, context, url):
     finally:
         downloader.cleanup()
         debug("[TikTok] cleanup completato")
+
+async def handle_tiktok_audio(update, context, url):
+    final_url = requests.head(url, allow_redirects=True).url
+    downloader = TikTokDownloader()
+    sender = TelegramMediaSender(update, "TikTok")
+
+    try:
+        result = downloader.download_audio(final_url)
+        audio_path = result["media"][0]["file_path"]
+
+        debug("[TikTok] audio downloaded")
+
+        await sender.send_audio(audio_path)
+
+    except (DownloadError, Exception) as e:
+        error("[TikTok] Error download video %s", e)
+        await update.message.reply_text(
+            "[TikTok] Errore durante il download del contenuto.",
+            reply_to_message_id=update.message.message_id
+        )
+
+    finally:
+        downloader.cleanup()
+        debug("[TikTok] audio cleanup")  

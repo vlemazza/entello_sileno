@@ -7,7 +7,7 @@ from utils.text_meme import check_meme
 from utils.logger import debug
 from handlers.dispatchers.youtube import handle_youtube_video, handle_youtube_audio
 from handlers.dispatchers.instagram import handle_instagram
-from handlers.dispatchers.tiktok import handle_tiktok
+from handlers.dispatchers.tiktok import handle_tiktok, handle_tiktok_audio
 from handlers.dispatchers.reddit import handle_reddit
 from handlers.dispatchers.twitter import handle_twitter
 from handlers.dispatchers.generic import handle_generic

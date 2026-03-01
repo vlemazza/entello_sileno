@@ -79,3 +79,46 @@ class TikTokDownloader(VideoDownloader):
                 "description": "",
                 "author": ""
             }
+
+    def download_audio(self, url):
+        self.reset_temp_dir()
+        output_path = os.path.join(self.temp_dir, "audio.%(ext)s")
+
+        info_cmd = [
+            "yt-dlp",
+            "--dump-single-json",
+            "--user-agent", self.user_agent,
+            "--cookies", self.cookies_file,
+            url
+        ]
+        result = subprocess.run(info_cmd, capture_output=True, text=True, check=True)
+        data = json.loads(result.stdout)
+        title = data.get("title") or "TikTok Audio"
+
+        cmd = [
+            "yt-dlp",
+            "--extract-audio",
+            "--audio-format", "mp3",
+            "--user-agent", self.user_agent,
+            "--cookies", self.cookies_file,
+            "-o", output_path,
+            url
+        ]
+
+        try:
+            subprocess.run(cmd, check=True, timeout=300)
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError(f"[TikTokDownloader] Errore download audio: {e}")
+        except subprocess.TimeoutExpired:
+            raise TimeoutError("[TikTokDownloader] Timeout durante il download")
+
+        final_path = os.path.join(self.temp_dir, "audio.mp3")
+        if not os.path.exists(final_path):
+            raise FileNotFoundError("File non trovato dopo il download.")
+
+        return {
+            "media": [{"file_path": final_path, "type": "audio"}],
+            "title": title,
+            "description": "",
+            "author": (data.get("uploader") or "").strip()
+        }
