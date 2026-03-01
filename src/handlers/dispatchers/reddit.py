@@ -8,7 +8,7 @@ async def handle_reddit(update, context, url):
     sender = TelegramMediaSender(update, "Reddit")
 
     try:
-        result = downloader.download_post(url)
+        result = await downloader.download_post(url)
 
         media_list = result.get("media", [])
         title = result.get("title", "")
