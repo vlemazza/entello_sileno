@@ -1,15 +1,14 @@
 import os
-import subprocess
 from pathlib import Path
 from gallery_dl import config
 from gallery_dl.extractor import find
 from gallery_dl.job import DownloadJob
-from downloaders.video_downloader import VideoDownloader
-import json
+from downloaders.media_downloader import MediaDownloader
+from models.download_result import DownloadResult, MediaItem
 
 
 
-class BlueSkyVideoDownloader(VideoDownloader):
+class BlueSkyVideoDownloader(MediaDownloader):
 
     IMAGE_EXT = {".jpg", ".jpeg", ".png", ".webp"}
     VIDEO_EXT = {".mp4", ".webm"}
@@ -18,7 +17,7 @@ class BlueSkyVideoDownloader(VideoDownloader):
         super().__init__()
 
 
-    async def download_bluesky_post(self, url):
+    async def fetch_post(self, url):
         extractor = find(url)
         extractor.initialize()
 
@@ -44,14 +43,15 @@ class BlueSkyVideoDownloader(VideoDownloader):
             else:
                 media = False
 
-        return {
-            "content":content,
-            "user": user,
-            "media": media
-        }
+        return DownloadResult(
+            content=content,
+            user=user,
+            has_media=media,
+        )
 
 
-    async def download_bluesky_media(self, url):
+
+    async def fetch_media(self, url):
         self.reset_temp_dir()
         media_files = []
 
@@ -75,26 +75,7 @@ class BlueSkyVideoDownloader(VideoDownloader):
                 media_type = "image"
             elif ext in self.VIDEO_EXT:
                 media_type = "video"
-
-                size_mb = os.path.getsize(path) / (1024 * 1024)
-
-                if size_mb > 50:
-                    command = [
-                        "nice", "-n", "19",
-                        "ffmpeg",
-                        "-i", str(path),
-                        "-vf", "scale=-2:720",
-                        "-c:v", "libx264",
-                        "-crf", "35",
-                        "-preset", "veryfast",
-                        "-profile:v", "main",
-                        "-c:a", "aac",
-                        "-b:a", "128k",
-                        "-y",
-                        os.path.join(self.temp_dir, "video_compressed.mp4")
-                    ]
-                    subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
-                    path = os.path.join(self.temp_dir, "video_compressed.mp4")
+                path = self.finalize_video(str(path))
 
             else:
                 continue
@@ -104,12 +85,6 @@ class BlueSkyVideoDownloader(VideoDownloader):
                 "type": media_type,
             })
 
-        return {
-            "media": media_files,
-            "title": "",
-            "description": "",
-            "author": "",
-        }
-
-
-
+        return DownloadResult(
+            media=[MediaItem(file_path=m["file_path"], type=m["type"]) for m in media_files]
+        )

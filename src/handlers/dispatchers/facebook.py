@@ -1,36 +1,31 @@
-#from downloaders.video_downloader import VideoDownloader
 from downloaders.facebook_downloader import FacebookDownloader
+from handlers.dispatchers.base import BaseDispatcher
 from services.caption_builder import build_facebook_caption
-from services.media_sender import TelegramMediaSender
-from utils.logger import debug, error
+from utils.logger import debug
 
-async def handle_facebook(update, context, url):
-    downloader = FacebookDownloader()
-    sender = TelegramMediaSender(update, "Facebook")
 
-    try:
-        result = await downloader.download_post(url)
-        media_list = result["media"]
-        title = result["title"]
-        description = result["description"][:800]
-        author = result["author"]
+class FacebookDispatcher(BaseDispatcher):
+    service_name = "Facebook"
 
-        debug("[Facebook] media scaricato")
+    def create_downloader(self):
+        return FacebookDownloader()
+
+    async def process(self, update, context, url, downloader, sender):
+        result = await downloader.fetch_post(url)
+        media_list = result.media
+        title = result.title
+        description = result.description
+        author = result.author
+
+        debug("[Facebook] media downloaded")
 
         caption = build_facebook_caption(title, description, author, url)
-        await sender.send_media_list(
-            media_list,
-            caption=caption,
-            parse_mode="HTML",
-        )
+        
+        await self.send_message(sender, media_list, caption)
 
-    except Exception as e:
-        error("[Facebook] Errore nel download: %s", e)
-        await update.message.reply_text(
-            "[Facebook] Errore durante il download del contenuto.",
-            reply_to_message_id=update.message.message_id
-        )
-    finally:
-        downloader.cleanup()
-        debug("[Facebook] cleanup completato")
 
+_DISPATCHER = FacebookDispatcher()
+
+
+async def handle_facebook(update, context, url):
+    return await _DISPATCHER.run(update, context, url)

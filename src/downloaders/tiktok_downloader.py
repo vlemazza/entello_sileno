@@ -1,66 +1,39 @@
 import os
-import subprocess
 import json
-from downloaders.video_downloader import VideoDownloader
+import subprocess
+from downloaders.media_downloader import MediaDownloader
+from models.download_result import DownloadResult, MediaItem
 from pathlib import Path
 
-class TikTokDownloader(VideoDownloader):
+class TikTokDownloader(MediaDownloader):
     def __init__(self):
         super().__init__()
-        self.cookies_file = os.getenv("TK_COOKIES_FILE")
-        if not self.cookies_file or not os.path.exists(self.cookies_file):
-            raise ValueError("File cookie non impostato")
-        self.user_agent = "sesso frank?"
+        self.set_cookies_from_env("TK_COOKIES_FILE", "TikTok")
 
-    def download_video(self, url):
+    async def download_video(self, url):
 
         self.reset_temp_dir()
-        output_path = os.path.join(self.temp_dir, "video.mp4")
-
-        cmd = [
-            "yt-dlp",
-            "--user-agent", self.user_agent,
-            "--cookies", self.cookies_file,
-            "-o", output_path,
-            url
-        ]
-
-        info_cmd = [
-            "yt-dlp",
-            "--dump-single-json",
-            "--user-agent", self.user_agent,
-            "--cookies", self.cookies_file,
-            url
-        ]
-        result = subprocess.run(info_cmd, capture_output=True, text=True, check=True)
-        data = json.loads(result.stdout)
-
-        try:
-            subprocess.run(cmd, check=True, timeout=300)
-        except subprocess.CalledProcessError as e:
-            raise RuntimeError(f"[TikTokDownloader] Errore download video: {e}")
-        except subprocess.TimeoutExpired:
-            raise TimeoutError("[TikTokDownloader] Timeout durante il download")
-
+        data = json.loads(self.get_info_ytdlp(url))
+        output_path = await super().download_video(url)
         if not os.path.exists(output_path):
-            raise FileNotFoundError("File non trovato dopo il download.")
+            raise FileNotFoundError("File not found.")
 
-        return {
-            "media": [{"file_path": output_path, "type": "video"}],
-            "title": data.get("title") or "TikTok Video",
-            "description": data.get("description") or "",
-            "author": (data.get("uploader") or "").strip()
-        }
+        return DownloadResult(
+            media=[MediaItem(file_path=output_path, type="video")],
+            title=data.get("title") or "TikTok Video",
+            description=data.get("description") or "",
+            author=(data.get("uploader") or "").strip(),
+        )
 
     def download_photos(self, url):
             self.reset_temp_dir()
             media_files = []
-
-            
+         
             cmd = [
                 "gallery-dl",
                 "--cookies", self.cookies_file,
                 "-d", self.temp_dir,
+                "--write-info-json",
                 url
             ]
             subprocess.run(cmd, check=True)
@@ -72,53 +45,19 @@ class TikTokDownloader(VideoDownloader):
                     media_files.append({"file_path": file_path, "type": "image"})
                 elif file_name.endswith(".mp3"):
                     media_files.append({"file_path": file_path, "type": "audio"})
+                elif file_name.endswith(".json"):
+                    with open(file_path, "r", encoding="utf-8") as f:
+                        data = json.load(f)
 
-            return {
-                "media": media_files,
-                "title": "",
-                "description": "",
-                "author": ""
-            }
+            return DownloadResult(
+                media=[MediaItem(file_path=m["file_path"], type=m["type"]) for m in media_files],
+                description=data.get("desc") or "",
+                author=(data["author"]["nickname"] or "").strip(),
+            )
 
     def download_audio(self, url):
-        self.reset_temp_dir()
-        output_path = os.path.join(self.temp_dir, "audio.%(ext)s")
-
-        info_cmd = [
-            "yt-dlp",
-            "--dump-single-json",
-            "--user-agent", self.user_agent,
-            "--cookies", self.cookies_file,
-            url
-        ]
-        result = subprocess.run(info_cmd, capture_output=True, text=True, check=True)
-        data = json.loads(result.stdout)
-        title = data.get("title") or "TikTok Audio"
-
-        cmd = [
-            "yt-dlp",
-            "--extract-audio",
-            "--audio-format", "mp3",
-            "--user-agent", self.user_agent,
-            "--cookies", self.cookies_file,
-            "-o", output_path,
-            url
-        ]
-
-        try:
-            subprocess.run(cmd, check=True, timeout=300)
-        except subprocess.CalledProcessError as e:
-            raise RuntimeError(f"[TikTokDownloader] Errore download audio: {e}")
-        except subprocess.TimeoutExpired:
-            raise TimeoutError("[TikTokDownloader] Timeout durante il download")
-
-        final_path = os.path.join(self.temp_dir, "audio.mp3")
-        if not os.path.exists(final_path):
-            raise FileNotFoundError("File non trovato dopo il download.")
-
-        return {
-            "media": [{"file_path": final_path, "type": "audio"}],
-            "title": title,
-            "description": "",
-            "author": (data.get("uploader") or "").strip()
-        }
+        data = json.loads(self.get_info_ytdlp(url))
+        result = super().download_audio(url)
+        result.title = data.get("title") or "TikTok Audio"
+        result.author = (data.get("uploader") or "").strip()
+        return result

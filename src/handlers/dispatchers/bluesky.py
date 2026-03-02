@@ -1,60 +1,38 @@
 from downloaders.bluesky_downloader import BlueSkyVideoDownloader
-from services.caption_builder import build_bluesky_captions
-from services.media_sender import TelegramMediaSender
-from utils.logger import debug, error
+from handlers.dispatchers.base import BaseDispatcher
+from services.caption_builder import build_bluesky_caption
+from utils.logger import debug
 
-async def handle_bluesky(update, context, url):
-    downloader = BlueSkyVideoDownloader()
-    sender = TelegramMediaSender(update, "Bluesky")
 
-    try:
-        result_post = await downloader.download_bluesky_post(url)
-        content = result_post["content"]
-        user = result_post["user"]
+class BlueskyDispatcher(BaseDispatcher):
+    service_name = "Bluesky"
 
-        debug("[Bluesky] post metadata scaricato")
+    def create_downloader(self):
+        return BlueSkyVideoDownloader()
 
-        if result_post["media"]:
-            result_media = await downloader.download_bluesky_media(url)
-            media_list = result_media["media"]
+    async def process(self, update, context, url, downloader, sender):
+        result = await downloader.fetch_post(url)
+        content = result.content
+        user = result.user
 
-            debug("[Bluesky] media scaricato")
+        debug("[Bluesky] post metadata fetched")
+
+        if result.has_media:
+            media_result = await downloader.fetch_media(url)
+            media_list = media_result.media
+
+            debug("[Bluesky] media downloaded")
         else:
             media_list = []
-            debug("[Bluesky] no media solo testo")
+            debug("[Bluesky] no media just text")
 
-        caption1, caption2 = build_bluesky_captions(content, user, url)
+        caption = build_bluesky_caption(content, user, url)
 
-        if not media_list:
-            await sender.send_text(caption1, parse_mode="HTML")
-            if caption2:
-                await sender.send_text(caption2, parse_mode="HTML")
-            return
+        await self.send_message(sender, media_list, caption)
 
-        if len(media_list) == 1:
-            await sender.send_media_list(media_list, caption=caption1, parse_mode="HTML")
-            if caption2:
-                await sender.send_text(caption2, parse_mode="HTML")
-            return
 
-        if caption2:
-            await sender.send_text(caption1, parse_mode="HTML")
-            await sender.send_text(caption2, parse_mode="HTML")
-        else:
-            await sender.send_text(caption1, parse_mode="HTML")
+_DISPATCHER = BlueskyDispatcher()
 
-        await sender.send_media_list(
-            media_list,
-            caption=None,
-            parse_mode="HTML",
-        )
 
-    except Exception as e:
-        error("[Bluesky] Errore nel download: %s", e)
-        await update.message.reply_text(
-            "[Bluesky] Errore durante il download del contenuto.",
-            reply_to_message_id=update.message.message_id
-        )
-    finally:
-        downloader.cleanup()
-        debug("[Bluesky] cleanup completato")
+async def handle_bluesky(update, context, url):
+    return await _DISPATCHER.run(update, context, url)

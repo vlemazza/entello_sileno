@@ -1,34 +1,44 @@
 from downloaders.instagram_downloader import InstagramDownloader
+from handlers.dispatchers.base import BaseDispatcher
 from services.caption_builder import build_instagram_caption
-from services.media_sender import TelegramMediaSender
-from utils.logger import debug, error
+from utils.logger import debug
+from urllib.parse import urlparse, urlunparse
 
-async def handle_instagram(update, context, url):
-    downloader = InstagramDownloader()
-    sender = TelegramMediaSender(update, "Instagram")
 
-    try:
-        result = await downloader.download_post(url)
-        media_list = result["media"]
-        title = result["title"]
-        description = result["description"][:800]
-        author = result["author"]
+class InstagramDispatcher(BaseDispatcher):
+    service_name = "Instagram"
 
-        debug("[Instagram] media scaricato")
+    def create_downloader(self):
+        return InstagramDownloader()
+
+    async def process(self, update, context, url, downloader, sender):
+        parsed = urlparse(url)
+        normalized_url = urlunparse((parsed.scheme, parsed.netloc, parsed.path, '', '', ''))
+
+        if "/p/" in parsed.path:
+            try:
+                result = await downloader.fetch_image_post(normalized_url)
+            except Exception:
+                result = await downloader.fetch_video_post(normalized_url)
+        elif "/reel/" in parsed.path:
+            result = await downloader.fetch_video_post(normalized_url)
+        else:
+            raise ValueError("URL Instagram not supported; /p/ o /reel/")
+
+        media_list = result.media
+        title = result.title
+        description = result.description
+        author = result.author
+
+        debug("[Instagram] media downloaded")
 
         caption = build_instagram_caption(title, description, author, url)
-        await sender.send_media_list(
-            media_list,
-            caption=caption,
-            parse_mode="HTML",
-        )
+        
+        await self.send_message(sender, media_list, caption)
 
-    except Exception as e:
-        error("[Instagram] Errore nel download: %s", e)
-        await update.message.reply_text(
-            "[Instagram] Errore durante il download del contenuto.",
-            reply_to_message_id=update.message.message_id
-        )
-    finally:
-        downloader.cleanup()
-        debug("[Instagram] cleanup completato")
+
+_DISPATCHER = InstagramDispatcher()
+
+
+async def handle_instagram(update, context, url):
+    return await _DISPATCHER.run(update, context, url)

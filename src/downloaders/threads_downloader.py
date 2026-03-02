@@ -2,15 +2,16 @@ import os
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
-from downloaders.video_downloader import VideoDownloader
+from downloaders.media_downloader import MediaDownloader
+from models.download_result import DownloadResult, MediaItem
 
 
-class ThreadsDownloader(VideoDownloader):
+class ThreadsDownloader(MediaDownloader):
 
     def __init__(self):
         super().__init__()
 
-    def download_post(self, url):
+    def fetch_post(self, url):
 
         self.reset_temp_dir()
         response = requests.get(url)
@@ -75,11 +76,14 @@ class ThreadsDownloader(VideoDownloader):
 
                     counter += 1
 
-        return {
-            "media": media_files,
-            "description": caption,
-            "author": author,
-        }
+        return DownloadResult(
+            media=[MediaItem(file_path=m["file_path"], type=m["type"]) for m in media_files],
+            description=caption,
+            author=author,
+            content=caption,
+            user=author,
+        )
+
 
     def _download_file(self, url, path):
         r = requests.get(url, stream=True)

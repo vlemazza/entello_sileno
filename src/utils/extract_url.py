@@ -22,7 +22,7 @@ def normalize_threads_embed_url(url):
     username = path_parts[0]
     post_id = path_parts[2]
 
-    return f"https://www.threads.com/{username}/post/{post_id}/embed" "",
+    return f"https://www.threads.com/{username}/post/{post_id}/embed"
 
 def resolve_reddit_redirect(url):
 

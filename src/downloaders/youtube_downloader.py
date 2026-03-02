@@ -1,101 +1,36 @@
 import os
-import yt_dlp
-from downloaders.video_downloader import VideoDownloader
+import json
+from downloaders.media_downloader import MediaDownloader
+from models.download_result import DownloadResult, MediaItem
 
-class YouTubeDownloader(VideoDownloader):
+class YouTubeDownloader(MediaDownloader):
     def __init__(self):
         super().__init__()
         self.max_duration = int(os.getenv("MAX_DURATION"))
     
 
-    def download_video(self, url):
-        self.reset_temp_dir()
-        ydl_opts = {
-            'format': 'bv*[vcodec^=avc1][height<=720]+ba/b[height<=720]',
-            'merge_output_format': 'mp4',
-            'outtmpl': os.path.join(self.temp_dir, "video_original.%(ext)s"),
-            'quiet': False,
-            'noplaylist': True,
-            'no_warnings': True,
-            'restrictfilenames': True,
-            'overwrites': True,
-            'continuedl': False,
-            
-            'postprocessors': [{
-                'key': 'FFmpegVideoConvertor',
-                'preferedformat': 'mp4',
-                }],
-    
-        }
+    async def download_video(self, url):
+        info = json.loads(self.get_info_ytdlp(url))
+        duration = info.get('duration', 0)
+        if duration > self.max_duration:
+            raise ValueError(f"[YouTubeDownloader] video exceeds {self.max_duration}s")
 
-
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=False)
-            duration = info.get('duration', 0)
-            title = info.get('title', 'unknown')
-            description = info.get('description', '')
-            uploader = info.get('uploader', 'unknown')
-
-            if duration > self.max_duration:
-                raise ValueError(f"[YouTubeDownloader] video exceeds {self.max_duration}s")
-
-            ydl.download([url])
-
-        if not os.path.exists(self.original_path):
-            raise FileNotFoundError("File non trovato dopo il download.")
-
-        size_mb = os.path.getsize(self.original_path) / (1024 * 1024)
-        final_path = self.original_path
-
-        if size_mb > 50:
-            self.compress_video(self.original_path, self.compressed_path)
-            final_path = self.compressed_path
-
-        return {
-            "media": [{"file_path": final_path, "type": "video"}],
-            "title": title,
-            "description": description,
-            "author": uploader,
-        }
+        video_path = await super().download_video(url)
+        return DownloadResult(
+            media=[MediaItem(file_path=video_path, type="video")],
+            title=info.get('title', 'unknown'),
+            description=info.get('description', ''),
+            author=info.get('uploader', 'unknown'),
+        )
 
     def download_audio(self, url):
-        self.reset_temp_dir()
+        info = json.loads(self.get_info_ytdlp(url))
+        duration = info.get("duration", 0)
+        if duration > self.max_duration:
+            raise ValueError(
+                f"[YouTubeDownloaderAudio] audio exceeds {self.max_duration}s"
+            )
 
-        ydl_opts = {
-            "format": "bestaudio/best",
-            "outtmpl": os.path.join(self.temp_dir, "%(title)s.%(ext)s"),
-            "quiet": True,
-            "no_warnings": True,
-            "overwrites": True,
-            "postprocessors": [
-                {
-                    "key": "FFmpegExtractAudio",
-                    "preferredcodec": "mp3",
-                    "preferredquality": "320",
-                },
-                {"key": "FFmpegMetadata"},
-                {"key": "EmbedThumbnail"},
-            ],
-        }
-
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=True)
-
-            duration = info.get("duration", 0)
-            if duration > self.max_duration:
-                raise ValueError(
-                    f"[YouTubeDownloaderAudio] audio exceeds {self.max_duration}s"
-                )
-
-            final_path = ydl.prepare_filename(info)
-            final_path = os.path.splitext(final_path)[0] + ".mp3"
-
-        if not os.path.exists(final_path):
-            raise FileNotFoundError("Audio non trovato dopo il download.")
-
-        return {
-            "media": [{"file_path": final_path, "type": "audio"}],
-            "title": info.get("title", ""),
-            "description": "",
-            "author": "",
-        }
+        result = super().download_audio(url)
+        result.title = info.get("title", "")
+        return result

@@ -1,30 +1,22 @@
 import os
 import requests
-from downloaders.video_downloader import VideoDownloader
+from downloaders.media_downloader import MediaDownloader
+from models.download_result import DownloadResult, MediaItem
 from utils.logger import debug
 from pathlib import Path
+from RedDownloader import RedDownloader
 
 
-class RedditDownloader(VideoDownloader):
+class RedditDownloader(MediaDownloader):
     def __init__(self):
         super().__init__()
-        self.headers  = {
-            "User-Agent": "Mozilla/5.0 (GNU/HURD)",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-            "Accept-Language": "it-IT,it;q=0.8,en-US;q=0.5,en;q=0.3",
-            "Accept-Encoding": "gzip, deflate, br",
-            "Connection": "keep-alive",
-            "Cache-Control": "max-age=0",
-        }
 
-    async def download_post(self, url):
+    async def fetch_post(self, url):
 
         self.reset_temp_dir()
         media_files = []
 
         json_url = url + "/.json"
-
-        print(json_url)
 
         r = requests.get(json_url, headers=self.headers)
         r.raise_for_status()
@@ -55,29 +47,28 @@ class RedditDownloader(VideoDownloader):
         elif post_data.get("post_hint") == "image":
             await self._download_image(url, media_files)
 
-        return {
-            "media": media_files,
-            "title": title,
-            "external_url": external_url,
-            "description": selftext,
-            "author": f"u/{author}",
-            "subreddit": f"r/{subreddit}",
-        }
+        return DownloadResult(
+            media=[MediaItem(file_path=m["file_path"], type=m["type"]) for m in media_files],
+            title=title,
+            external_url=external_url,
+            description=selftext,
+            author=f"u/{author}",
+            subreddit=f"r/{subreddit}",
+        )
+
 
     async def _download_video(self, url, media_files):
 
-        result = await self.download_video(url)
-
+        video_path = await self.download_video(url)
         media_files.append({
-            "file_path": result["media"][0]["file_path"],
+            "file_path": video_path,
             "type": "video",
         })
 
 
-    async def _download_image(self, url, media_files):
-
-        
-        for path_obj in sorted(Path(self.temp_dir).rglob("*"), key=lambda item: str(item)):
+    async def _download_image(self, url, media_files):  
+        RedDownloader.Download(url , destination=self.temp_dir)    
+        for path_obj in Path(self.temp_dir).rglob("*"):
             if path_obj.is_file():
                 media_files.append({
                     "file_path": str(path_obj),

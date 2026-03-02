@@ -1,21 +1,24 @@
 from downloaders.reddit_downloader import RedditDownloader
+from handlers.dispatchers.base import BaseDispatcher
 from services.caption_builder import build_reddit_caption
-from services.media_sender import TelegramMediaSender
-from utils.logger import debug, error
+from utils.logger import debug
 
-async def handle_reddit(update, context, url):
-    downloader = RedditDownloader()
-    sender = TelegramMediaSender(update, "Reddit")
 
-    try:
-        result = await downloader.download_post(url)
+class RedditDispatcher(BaseDispatcher):
+    service_name = "Reddit"
 
-        media_list = result.get("media", [])
-        title = result.get("title", "")
-        description = result.get("description", "")
-        external_url = result.get("external_url", "")
-        author = result.get("author", "")
-        subreddit = result.get("subreddit", "")
+    def create_downloader(self):
+        return RedditDownloader()
+
+    async def process(self, update, context, url, downloader, sender):
+        result = await downloader.fetch_post(url)
+
+        media_list = result.media or []
+        title = result.title or ""
+        description = result.description or ""
+        external_url = result.external_url or ""
+        author = result.author or ""
+        subreddit = result.subreddit or ""
 
         caption = build_reddit_caption(
             title,
@@ -26,42 +29,10 @@ async def handle_reddit(update, context, url):
             url
         )
 
-        if not media_list:
-            debug("[Reddit] solo testo")
+        await self.send_message(sender, media_list, caption)
 
-            await sender.send_text(caption, parse_mode="HTML")
-            return
+_DISPATCHER = RedditDispatcher()
 
-        if len(media_list) == 1:
-            media_type = media_list[0].get("type", "")
 
-            if media_type == "video":
-                debug("[Reddit] singolo video")
-            elif media_type == "image":
-                debug("[Reddit] singola immagine")
-
-            await sender.send_media_list(
-                media_list,
-                caption=caption,
-                parse_mode="HTML"
-            )
-            return
-
-        debug("[Reddit] media multipli")
-
-        await sender.send_text(caption, parse_mode="HTML")
-        await sender.send_media_list(
-            media_list,
-            caption=None,
-            parse_mode="HTML"
-        )
-
-    except Exception as e:
-        error("[Reddit] Errore nel download: %s", e)
-        await update.message.reply_text(
-            "[Reddit] Errore durante il download del contenuto.",
-            reply_to_message_id=update.message.message_id
-        )
-    finally:
-        downloader.cleanup()
-        debug("[Reddit] cleanup completato")
+async def handle_reddit(update, context, url):
+    return await _DISPATCHER.run(update, context, url)

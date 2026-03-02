@@ -1,55 +1,54 @@
 from downloaders.youtube_downloader import YouTubeDownloader
+from handlers.dispatchers.base import BaseDispatcher
+from models.download_result import DownloadResult
 from services.caption_builder import build_youtube_caption
-from services.media_sender import TelegramMediaSender
-from utils.logger import debug, error
-from yt_dlp.utils import DownloadError
-from yt_dlp.utils import DownloadError
+from utils.logger import debug
 
-async def handle_youtube_video(update, context, url):
-    downloader = YouTubeDownloader()
-    sender = TelegramMediaSender(update, "YouTube")
 
-    try:
-        result = downloader.download_video(url)
-        video_path = result["media"][0]["file_path"]
-        title = result["title"]
-        description = result["description"][:800]
-        author = result["author"]
+class YouTubeVideoDispatcher(BaseDispatcher):
+    service_name = "YouTube"
+
+    def create_downloader(self):
+        return YouTubeDownloader()
+
+    async def process(self, update, context, url, downloader, sender):
+        result = await downloader.download_video(url)
+        video_path = result.first_media_path()
+        title = result.title
+        description = result.description[:800]
+        author = result.author
 
         debug("[YouTube] video downloaded")
 
         caption = build_youtube_caption(title, description, author, url)
-        await sender.send_video(video_path, caption=caption, parse_mode="HTML")
-    except (DownloadError, Exception) as e:
-        error("[YouTube] Error download video %s", e)
-        await update.message.reply_text(
-            "[YouTube] Errore durante il download del contenuto.",
-            reply_to_message_id=update.message.message_id
+        await self.send_message(
+            sender,
+            DownloadResult.from_single(video_path, "video").media,
+            caption,
         )
 
-    finally:
-        downloader.cleanup()
-        debug("[YouTube] video cleanup")
 
-async def handle_youtube_audio(update, context, url):
-    downloader = YouTubeDownloader()
-    sender = TelegramMediaSender(update, "YouTube")
+class YouTubeAudioDispatcher(BaseDispatcher):
+    service_name = "YouTube"
 
-    try:
+    def create_downloader(self):
+        return YouTubeDownloader()
+
+    async def process(self, update, context, url, downloader, sender):
         result = downloader.download_audio(url)
-        audio_path = result["media"][0]["file_path"]
+        audio_path = result.first_media_path()
 
         debug("[YouTube] audio downloaded")
-
         await sender.send_audio(audio_path)
 
-    except (DownloadError, Exception) as e:
-        error("[YouTube] Error download video %s", e)
-        await update.message.reply_text(
-            "[YouTube] Errore durante il download del contenuto.",
-            reply_to_message_id=update.message.message_id
-        )
 
-    finally:
-        downloader.cleanup()
-        debug("[YouTube] audio cleanup")
+_VIDEO_DISPATCHER = YouTubeVideoDispatcher()
+_AUDIO_DISPATCHER = YouTubeAudioDispatcher()
+
+
+async def handle_youtube_video(update, context, url):
+    return await _VIDEO_DISPATCHER.run(update, context, url)
+
+
+async def handle_youtube_audio(update, context, url):
+    return await _AUDIO_DISPATCHER.run(update, context, url)

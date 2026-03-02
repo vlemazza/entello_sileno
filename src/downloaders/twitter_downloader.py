@@ -1,47 +1,57 @@
-import os
-import subprocess
 from pathlib import Path
 from gallery_dl import config
 from gallery_dl.extractor import find
 from gallery_dl.job import DownloadJob
-from downloaders.video_downloader import VideoDownloader
+from downloaders.media_downloader import MediaDownloader
+from models.download_result import DownloadResult, MediaItem
 
 
 
-class TwitterDownloader(VideoDownloader):
+class TwitterDownloader(MediaDownloader):
 
     IMAGE_EXT = {".jpg", ".jpeg", ".png", ".webp"}
     VIDEO_EXT = {".mp4", ".webm"}
 
     def __init__(self):
         super().__init__()
-    
 
-    async def download_tweet_post(self, url):
+    async def fetch_post(self, url):
+        config.set(("extractor", "twitter"), "text-tweets", True)
+        config.set(("postprocessor",), "metadata", True)
+        config.set(("metadata",), "event", "post")
+        config.set(("metadata",), "filename", "{tweet_id}")
+
         extractor = find(url)
         extractor.initialize()
 
 
         items = list(extractor.items())
 
-        try:
+        content = ""
+        user = "Unknown"
+        media = False
+
+        if items:
             data = items[0][2]
-            content = data['content']
-            user = data['author']['nick']
+            content = data.get("content") or data.get("full_text") or data.get("text") or ""
+            author = data.get("author") or {}
+            user = author.get("nick") or author.get("name") or author.get("username") or "Unknown"
             media = True
-        except Exception:
-            user = extractor.user.title()
-            content = await self.search_metadata(list(extractor.tweets()), 'full_text')
-            media = False
+        else:
+            try:
+                user = extractor.user.title()
+            except Exception:
+                user = "Unknown"
+            content = await self.search_metadata(list(extractor.tweets()), "full_text") or ""
+
+        return DownloadResult(
+            content=content,
+            user=user,
+            has_media=media,
+        )
 
 
-        return {
-            "content":content,
-            "user": user,
-            "media": media
-        }
-
-    async def download_tweet_media(self, url):
+    async def fetch_media(self, url):
         self.reset_temp_dir()
         media_files = []
 
@@ -64,26 +74,7 @@ class TwitterDownloader(VideoDownloader):
                 media_type = "image"
             elif ext in self.VIDEO_EXT:
                 media_type = "video"
-
-                size_mb = os.path.getsize(path) / (1024 * 1024)
-
-                if size_mb > 50:
-                    command = [
-                        "nice", "-n", "19",
-                        "ffmpeg",
-                        "-i", str(path),
-                        "-vf", "scale=-2:720",
-                        "-c:v", "libx264",
-                        "-crf", "35",
-                        "-preset", "veryfast",
-                        "-profile:v", "main",
-                        "-c:a", "aac",
-                        "-b:a", "128k",
-                        "-y",
-                        os.path.join(self.temp_dir, "video_compressed.mp4")
-                    ]
-                    subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
-                    path = os.path.join(self.temp_dir, "video_compressed.mp4")
+                path = self.finalize_video(str(path))
 
             else:
                 continue
@@ -93,12 +84,10 @@ class TwitterDownloader(VideoDownloader):
                 "type": media_type,
             })
 
-        return {
-            "media": media_files,
-            "title": "",
-            "description": "",
-            "author": "",
-        }
+        return DownloadResult(
+            media=[MediaItem(file_path=m["file_path"], type=m["type"]) for m in media_files]
+        )
+
 
     async def search_metadata(self, data, search):
         if isinstance(data, dict):

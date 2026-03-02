@@ -1,60 +1,38 @@
 from downloaders.twitter_downloader import TwitterDownloader
-from services.caption_builder import build_twitter_captions
-from services.media_sender import TelegramMediaSender
-from utils.logger import debug, error
+from handlers.dispatchers.base import BaseDispatcher
+from services.caption_builder import build_twitter_caption
+from utils.logger import debug
 
-async def handle_twitter(update, context, url):
-    downloader = TwitterDownloader()
-    sender = TelegramMediaSender(update, "Twitter")
 
-    try:
-        result_post = await downloader.download_tweet_post(url)
-        content = result_post["content"]
-        user = result_post["user"]
+class TwitterDispatcher(BaseDispatcher):
+    service_name = "Twitter"
+
+    def create_downloader(self):
+        return TwitterDownloader()
+
+    async def process(self, update, context, url, downloader, sender):
+        result = await downloader.fetch_post(url)
+        content = result.content
+        user = result.user
 
         debug("[Twitter] post metadata scaricato")
 
-        if result_post["media"]:
-            result_media = await downloader.download_tweet_media(url)
-            media_list = result_media["media"]
+        if result.has_media:
+            media_result = await downloader.fetch_media(url)
+            media_list = media_result.media
 
             debug("[Twitter] media scaricato")
         else:
             media_list = []
             debug("[Twitter] no media solo testo")
 
-        caption1, caption2 = build_twitter_captions(content, user, url)
+        caption = build_twitter_caption(content, user, url)
 
-        if not media_list:
-            await sender.send_text(caption1, parse_mode="HTML")
-            if caption2:
-                await sender.send_text(caption2, parse_mode="HTML")
-            return
+        await self.send_message(sender, media_list, caption)
 
-        if len(media_list) == 1:
-            await sender.send_media_list(media_list, caption=caption1, parse_mode="HTML")
-            if caption2:
-                await sender.send_text(caption2, parse_mode="HTML")
-            return
 
-        if caption2:
-            await sender.send_text(caption1, parse_mode="HTML")
-            await sender.send_text(caption2, parse_mode="HTML")
-        else:
-            await sender.send_text(caption1, parse_mode="HTML")
+_DISPATCHER = TwitterDispatcher()
 
-        await sender.send_media_list(
-            media_list,
-            caption=None,
-            parse_mode="HTML",
-        )
 
-    except Exception as e:
-        error("[Twitter] Errore nel download: %s", e)
-        await update.message.reply_text(
-            "[Twitter] Errore durante il download del contenuto.",
-            reply_to_message_id=update.message.message_id
-        )
-    finally:
-        downloader.cleanup()
-        debug("[Twitter] cleanup completato")
+async def handle_twitter(update, context, url):
+    return await _DISPATCHER.run(update, context, url)
