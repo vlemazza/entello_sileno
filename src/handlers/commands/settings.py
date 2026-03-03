@@ -29,18 +29,23 @@ def _build_settings_keyboard(chat_id: int):
         [InlineKeyboardButton(meme_label, callback_data="settings:toggle:meme")],
     ]
 
+    downloader_row = []
     for downloader in SUPPORTED_DOWNLOADERS:
         enabled = downloader not in settings.disabled_downloaders
         status = "ON" if enabled else "OFF"
         label = f"{DOWNLOADER_LABELS[downloader]}: {status}"
-        rows.append(
-            [
-                InlineKeyboardButton(
-                    label,
-                    callback_data=f"settings:toggle:downloader:{downloader}",
-                )
-            ]
+        downloader_row.append(
+            InlineKeyboardButton(
+                label,
+                callback_data=f"settings:toggle:downloader:{downloader}",
+            )
         )
+        if len(downloader_row) == 2:
+            rows.append(downloader_row)
+            downloader_row = []
+
+    if downloader_row:
+        rows.append(downloader_row)
 
     return InlineKeyboardMarkup(rows)
 
