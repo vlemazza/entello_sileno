@@ -31,7 +31,7 @@ class Service(Enum):
     }
     TIKTOK = {
         "name": "tiktok",
-        "domains": ["tiktok.com"],
+        "domains": ["tiktok.com","vm.tiktok.com"],
         "handler": handle_tiktok,
         "audio_handler": handle_tiktok_audio,
     }
