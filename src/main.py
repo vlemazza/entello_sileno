@@ -18,6 +18,7 @@ if __name__ == "__main__":
     app.add_handler(ChatMemberHandler(handle_bot_added_group, ChatMemberHandler.MY_CHAT_MEMBER))
     app.add_handler(CommandHandler("settings", handle_settings_command))
     app.add_handler(CommandHandler("help", handle_help_command))
+    app.add_handler(CommandHandler("start", handle_help_command)) #per ora condivide l'help
     app.add_handler(CallbackQueryHandler(handle_settings_callback, pattern=r"^settings:"))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, url_handler))
 
