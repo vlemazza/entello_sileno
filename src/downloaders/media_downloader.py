@@ -1,6 +1,7 @@
 import os
 import shutil
 import subprocess
+import json
 import tempfile
 import asyncio
 from pathlib import Path
@@ -120,7 +121,12 @@ class MediaDownloader:
 
     def download_audio(self, url, cookies_file=None):
         self.reset_temp_dir()
-        output_path = os.path.join(self.temp_dir, "audio.%(ext)s")
+
+        info = json.loads(self.get_info_ytdlp(url))
+        title = info.get("title", "")
+
+        output_path = os.path.join(self.temp_dir, f"{title}.%(ext)s")
+
         cmd = [
             "yt-dlp",
             "-o", output_path,
@@ -132,6 +138,9 @@ class MediaDownloader:
             cmd.extend(["--cookies", cookies])
         cmd.append(url)
 
+        info = json.loads(self.get_info_ytdlp(url))
+        title = info.get("title", "")
+
         try:
             subprocess.run(cmd, check=True, timeout=300)
         except subprocess.CalledProcessError as e:
@@ -139,7 +148,8 @@ class MediaDownloader:
         except subprocess.TimeoutExpired:
             raise TimeoutError("[MediaDownloader] Timeout durante il download")
 
-        final_path = os.path.join(self.temp_dir, "audio.mp3")
+        final_path = os.path.join(self.temp_dir, f"{title}.mp3")
+
         if not os.path.exists(final_path):
             raise FileNotFoundError("File non trovato dopo il download.")
 

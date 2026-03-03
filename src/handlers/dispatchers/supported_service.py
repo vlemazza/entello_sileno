@@ -2,7 +2,7 @@ from enum import Enum
 
 from handlers.dispatchers.bluesky import handle_bluesky
 from handlers.dispatchers.facebook import handle_facebook
-from handlers.dispatchers.instagram import handle_instagram
+from handlers.dispatchers.instagram import handle_instagram, handle_instagram_audio
 from handlers.dispatchers.reddit import handle_reddit
 from handlers.dispatchers.threads import handle_threads
 from handlers.dispatchers.tiktok import handle_tiktok, handle_tiktok_audio
@@ -22,6 +22,7 @@ class Service(Enum):
         "name": "instagram",
         "domains": ["instagram.com"],
         "handler": handle_instagram,
+        "audio_handler": handle_instagram_audio,
     }
     FACEBOOK = {
         "name": "facebook",

@@ -36,9 +36,32 @@ class InstagramDispatcher(BaseDispatcher):
         
         await self.send_message(sender, media_list, caption)
 
+class InstagramAudioDispatcher(BaseDispatcher):
+    service_name = "Instagram"
+
+    def create_downloader(self):
+        return InstagramDownloader()
+
+    async def process(self, update, context, url, downloader, sender):
+        parsed = urlparse(url)
+        normalized_url = urlunparse((parsed.scheme, parsed.netloc, parsed.path, '', '', ''))
+
+        if "/reel/" in parsed.path:
+            result = downloader.download_audio(url)
+            audio_path = result.first_media_path()
+        else:
+            raise ValueError("URL Instagram not supported for fetch audio")        
+
+        debug("[Instagram] audio downloaded")
+        await sender.send_audio(audio_path)    
+
 
 _DISPATCHER = InstagramDispatcher()
+_AUDIO_DISPATCHER = InstagramAudioDispatcher()
 
 
 async def handle_instagram(update, context, url):
     return await _DISPATCHER.run(update, context, url)
+
+async def handle_instagram_audio(update, context, url):
+    return await _AUDIO_DISPATCHER.run(update, context, url)
