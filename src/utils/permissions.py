@@ -4,9 +4,16 @@ from telegram import Update
 whitelist_user = [x.strip() for x in os.getenv("WHITELIST_USER", "").split(",") if x]
 whitelist_group = [x.strip() for x in os.getenv("WHITELIST_GROUP", "").split(",") if x]
 
+def is_group_whitelisted(chat_id):
+    return str(chat_id) in whitelist_group
+
+
+def is_user_whitelisted(user_id):
+    return str(user_id) in whitelist_user
+
 async def chat_not_in_list(chat_id, user_id):
 
-    if str(chat_id) in whitelist_group or str(user_id) in whitelist_user:
+    if is_group_whitelisted(chat_id) or is_user_whitelisted(user_id):
         return False
 
     return True    

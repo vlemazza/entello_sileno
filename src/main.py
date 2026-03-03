@@ -6,7 +6,7 @@ from telegram.ext import (
     MessageHandler,
     filters,
 )
-from handlers.dispatchers.dispatchers import url_handler
+from handlers.url_routing import url_handler
 from handlers.events import handle_bot_added_group
 from handlers.settings import handle_settings_callback, handle_settings_command
 import os

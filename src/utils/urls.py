@@ -7,8 +7,20 @@ def extract_url(text):
     return match.group(0) if match else None
 
 
-def check_url_twitter(text):
-    return bool(re.search(r'://(www\.)?(x\.com|nitter\.poast\.org)(/|$)', text))
+def extract_domain(url):
+    parsed = urlparse(url)
+    netloc = parsed.netloc.split(":")[0].lower()
+    if netloc.startswith("www."):
+        netloc = netloc[4:]
+    return netloc
+
+
+def normalize_twitter_url(url):
+    parsed = urlparse(url)
+    netloc = parsed.netloc
+    if netloc and netloc != "x.com":
+        return urlunparse(parsed._replace(netloc="x.com"))
+    return url
 
 def normalize_threads_embed_url(url):
 

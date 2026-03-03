@@ -84,7 +84,6 @@ class MediaDownloader:
             "-f", "bv*+ba/best",
             "--merge-output-format", "mp4",
             "--no-playlist",
-            "--quiet",
             "--no-warnings",
             "--restrict-filenames",
             "--force-overwrites",
