@@ -1,7 +1,7 @@
 from telegram import Update
 from telegram.constants import ChatMemberStatus
 from telegram.ext import ContextTypes
-from utils.logger import debug
+from services.logger import debug
 
 async def handle_bot_added_group(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat = update.effective_chat

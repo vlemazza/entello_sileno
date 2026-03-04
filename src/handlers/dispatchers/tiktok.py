@@ -3,7 +3,7 @@ from downloaders.tiktok_downloader import TikTokDownloader
 from handlers.dispatchers.base import BaseDispatcher
 from models.download_result import DownloadResult
 from services.caption_builder import build_tiktok_photo_caption, build_tiktok_video_caption
-from utils.logger import debug
+from services.logger import debug
 
 
 class TikTokVideoDispatcher(BaseDispatcher):

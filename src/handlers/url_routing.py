@@ -1,7 +1,8 @@
 import random
 from handlers.dispatchers.generic import handle_generic
 from handlers.dispatchers.supported_service import Service
-from utils.logger import debug
+from services.logger import debug
+from services.media_sender import TelegramMediaSender
 from utils.urls import extract_domain, extract_url
 from services.db.dao_db import is_downloader_disabled
 from utils.waiting_message_loader import get_waiting_messages
@@ -74,12 +75,15 @@ async def url_handler(update, context):
     debug("[Dispatchers] detected %s url", source_service)
 
     waiting_texts = await get_waiting_messages()
-    waiting_message = await update.message.reply_text(
-        random.choice(waiting_texts),
-        reply_to_message_id=update.message.message_id,
-    )
+    sender = TelegramMediaSender(update, source_service)
+    try:
+        waiting_message = await sender.send_text(random.choice(waiting_texts))
+    except Exception as e:
+        debug("[Dispatchers] waiting message failed: %s", e)
+        waiting_message = None
 
     try:
         await handler(update, context, target_url)
     finally:
-        await waiting_message.delete()
+        if waiting_message:
+            await waiting_message.delete()

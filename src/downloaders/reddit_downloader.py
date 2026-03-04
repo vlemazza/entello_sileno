@@ -2,7 +2,7 @@ import os
 import requests
 from downloaders.media_downloader import MediaDownloader
 from models.download_result import DownloadResult, MediaItem
-from utils.logger import debug
+from services.logger import debug
 from pathlib import Path
 from RedDownloader import RedDownloader
 

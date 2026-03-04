@@ -1,7 +1,7 @@
 from downloaders.bluesky_downloader import BlueSkyVideoDownloader
 from handlers.dispatchers.base import BaseDispatcher
 from services.caption_builder import build_bluesky_caption
-from utils.logger import debug
+from services.logger import debug
 
 
 class BlueskyDispatcher(BaseDispatcher):

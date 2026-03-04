@@ -1,6 +1,6 @@
 from downloaders.media_downloader import MediaDownloader
 from handlers.dispatchers.base import BaseDispatcher
-from utils.logger import debug, error
+from services.logger import debug, error
 
 
 class GenericDispatcher(BaseDispatcher):

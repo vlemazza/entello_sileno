@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from services.caption_splitter import split_html_caption
 from services.media_sender import TelegramMediaSender
-from utils.logger import debug, error
+from services.logger import debug, error, warning
+from models.user_feedback import UserFacingError
 
 
 class BaseDispatcher(ABC):
@@ -28,8 +29,10 @@ class BaseDispatcher(ABC):
 
         try:
             return await self.process(update, context, url, downloader, sender)
+        except UserFacingError as e:
+            await sender.send_text(e.user_message)
         except Exception as e:
-            error("[%s] Error download: %s", self.service_name, e)   
+            error("[%s] Error download: %s", self.service_name, e)
         finally:
             downloader.cleanup()
             debug("[%s] cleanup", self.service_name)

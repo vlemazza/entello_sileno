@@ -2,7 +2,7 @@ from downloaders.youtube_downloader import YouTubeDownloader
 from handlers.dispatchers.base import BaseDispatcher
 from models.download_result import DownloadResult
 from services.caption_builder import build_youtube_caption
-from utils.logger import debug
+from services.logger import debug
 
 
 class YouTubeVideoDispatcher(BaseDispatcher):

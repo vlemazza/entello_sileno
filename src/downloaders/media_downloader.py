@@ -5,7 +5,7 @@ import json
 import tempfile
 import asyncio
 from pathlib import Path
-from utils.logger import error
+from services.logger import error
 from models.download_result import DownloadResult, MediaItem
 
 

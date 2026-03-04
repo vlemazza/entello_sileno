@@ -2,6 +2,7 @@ import os
 import json
 from downloaders.media_downloader import MediaDownloader
 from models.download_result import DownloadResult, MediaItem
+from models.user_feedback import MediaTooLong
 
 class YouTubeDownloader(MediaDownloader):
     def __init__(self):
@@ -13,7 +14,7 @@ class YouTubeDownloader(MediaDownloader):
         info = json.loads(self.get_info_ytdlp(url))
         duration = info.get('duration', 0)
         if duration > self.max_duration:
-            raise ValueError(f"[YouTubeDownloader] video exceeds {self.max_duration}s")
+            raise MediaTooLong(f"Video too long. Maximum allowed duration is {self.max_duration}s.")
 
         video_path = await super().download_video(url)
         return DownloadResult(
@@ -27,9 +28,7 @@ class YouTubeDownloader(MediaDownloader):
         info = json.loads(self.get_info_ytdlp(url))
         duration = info.get("duration", 0)
         if duration > self.max_duration:
-            raise ValueError(
-                f"[YouTubeDownloaderAudio] audio exceeds {self.max_duration}s"
-            )
+            raise MediaTooLong(f"Audio too long. Maximum allowed duration is {self.max_duration}s.")
 
         result = super().download_audio(url)
         result.title = info.get("title", "")

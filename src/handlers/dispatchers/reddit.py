@@ -1,7 +1,7 @@
 from downloaders.reddit_downloader import RedditDownloader
 from handlers.dispatchers.base import BaseDispatcher
 from services.caption_builder import build_reddit_caption
-from utils.logger import debug
+from services.logger import debug
 
 
 class RedditDispatcher(BaseDispatcher):

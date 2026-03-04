@@ -1,9 +1,6 @@
 from telegram import InputMediaPhoto, InputMediaVideo
-from telegram.error import NetworkError, TelegramError, TimedOut
-from utils.logger import error
-
-STICKER_PATH = "sticker.webp"
-
+from services.logger import error
+from models.user_feedback import SendFailed
 
 class TelegramMediaSender:
     def __init__(self, update, source_name):
@@ -21,10 +18,9 @@ class TelegramMediaSender:
                     parse_mode=parse_mode,
                     reply_to_message_id=self.message.message_id,
                 )
-        except TimedOut as e:
-            error("[%s] Timeout while sending video. %s", self.source_name, e)
         except Exception as e:
-            await self._reply_error(f"[{self.source_name}] Error sending video: {e}")
+            error("[%s] Error sending video: %s", self.source_name, e)
+            raise SendFailed(f"Error sending video on Telegram: {e}")
 
     async def send_audio(self, audio_path, caption=None, parse_mode=None):
         try:
@@ -36,18 +32,21 @@ class TelegramMediaSender:
                     disable_notification=True,
                     reply_to_message_id=self.message.message_id,
                 )
-        except TimedOut as e:
-            error("[%s] Timeout while sending audio. %s", self.source_name, e)
         except Exception as e:
-            await self._reply_error(f"[{self.source_name}] Error sending audio: {e}")
+            error("[%s] Error sending audio: %s", self.source_name, e)
+            raise SendFailed(f"Error sending audio on Telegram: {e}")
 
     async def send_text(self, text, parse_mode=None):
-        await self.message.reply_text(
-            text=text,
-            parse_mode=parse_mode,
-            reply_to_message_id=self.message.message_id,
-            disable_web_page_preview=True,
-        )
+        try:
+            return await self.message.reply_text(
+                text=text,
+                parse_mode=parse_mode,
+                reply_to_message_id=self.message.message_id,
+                disable_web_page_preview=True,
+            )
+        except Exception as e:
+            error("[%s] Error sending text: %s", self.source_name, e)
+            raise SendFailed(f"Error sending message on Telegram: {e}")
 
     async def send_media_list(
         self,
@@ -106,7 +105,7 @@ class TelegramMediaSender:
                 )
         except Exception as e:
             error("[%s] Error sending media list: %s", self.source_name, e)
-            await self._reply_error(f"[{self.source_name}] Errore durante l'invio del contenuto.")
+            raise SendFailed(f"Error sending media on Telegram: {e}")
 
     async def _send_single_media(self, media, caption=None, parse_mode=None):
         with open(media["file_path"], "rb") as media_file:
@@ -137,17 +136,3 @@ class TelegramMediaSender:
             return None
 
         return caption if chunk_start == 0 and index_in_chunk == 0 else None
-
-    async def _reply_error(self, text):
-        try:
-            with open(STICKER_PATH, "rb") as sticker_file:
-                await self.message.reply_sticker(
-                    sticker=sticker_file,
-                    reply_to_message_id=self.message.message_id,
-                )
-        except Exception as e:
-            error("[%s] Error sending sticker: %s", self.source_name, e)
-            await self.message.reply_text(
-                text,
-                reply_to_message_id=self.message.message_id,
-            )

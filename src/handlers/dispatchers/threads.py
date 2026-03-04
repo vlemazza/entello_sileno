@@ -1,7 +1,7 @@
 from downloaders.threads_downloader import ThreadsDownloader
 from handlers.dispatchers.base import BaseDispatcher
 from services.caption_builder import build_threads_caption
-from utils.logger import debug
+from services.logger import debug
 
 
 class ThreadsDispatcher(BaseDispatcher):

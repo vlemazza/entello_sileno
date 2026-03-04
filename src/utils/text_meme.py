@@ -1,7 +1,7 @@
 from telegram import Update
 import os
 import time
-from utils.logger import debug
+from services.logger import debug
 
 MEME = {
     "banana.opus": ["🍌", "banana", "banan"],

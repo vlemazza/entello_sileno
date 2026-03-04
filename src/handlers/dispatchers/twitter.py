@@ -1,7 +1,7 @@
 from downloaders.twitter_downloader import TwitterDownloader
 from handlers.dispatchers.base import BaseDispatcher
 from services.caption_builder import build_twitter_caption
-from utils.logger import debug
+from services.logger import debug
 
 
 class TwitterDispatcher(BaseDispatcher):

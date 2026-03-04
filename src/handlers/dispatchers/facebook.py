@@ -1,7 +1,7 @@
 from downloaders.facebook_downloader import FacebookDownloader
 from handlers.dispatchers.base import BaseDispatcher
 from services.caption_builder import build_facebook_caption
-from utils.logger import debug
+from services.logger import debug
 
 
 class FacebookDispatcher(BaseDispatcher):

@@ -1,7 +1,8 @@
 from downloaders.instagram_downloader import InstagramDownloader
 from handlers.dispatchers.base import BaseDispatcher
+from models.user_feedback import UnsupportedMediaType, UnsupportedUrl
 from services.caption_builder import build_instagram_caption
-from utils.logger import debug
+from services.logger import debug
 from urllib.parse import urlparse, urlunparse
 
 
@@ -23,7 +24,7 @@ class InstagramDispatcher(BaseDispatcher):
         elif "/reel/" in parsed.path:
             result = await downloader.fetch_video_post(normalized_url)
         else:
-            raise ValueError("URL Instagram not supported; /p/ o /reel/")
+            raise UnsupportedUrl("Instagram link not supported. Supported: posts (/p/) and reels (/reel/).")
 
         media_list = result.media
         title = result.title
@@ -47,10 +48,7 @@ class InstagramAudioDispatcher(BaseDispatcher):
         normalized_url = urlunparse((parsed.scheme, parsed.netloc, parsed.path, '', '', ''))
 
         if "/reel/" in parsed.path:
-            result = downloader.download_audio(url)
-            audio_path = result.first_media_path()
-        else:
-            raise ValueError("URL Instagram not supported for fetch audio")        
+            raise UnsupportedMediaType("Audio not supported for this Instagram link. Only Reels are supported for audio.")
 
         debug("[Instagram] audio downloaded")
         await sender.send_audio(audio_path)    
