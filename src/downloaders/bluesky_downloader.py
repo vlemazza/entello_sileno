@@ -49,8 +49,6 @@ class BlueSkyVideoDownloader(MediaDownloader):
             has_media=media,
         )
 
-
-
     async def fetch_media(self, url):
         self.reset_temp_dir()
         media_files = []

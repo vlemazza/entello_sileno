@@ -23,8 +23,8 @@ class InstagramDownloader(MediaDownloader):
         return DownloadResult(
             media=[MediaItem(file_path=video_path, type="video")],
             title=data.get("title") or "Instagram Video",
-            description=data.get("description") or "",
-            author=(data.get("uploader") or "").strip(),
+            content=data.get("description") or "",
+            user=(data.get("uploader") or "").strip(),
         )
 
     async def fetch_image_post(self, url):
@@ -88,8 +88,8 @@ class InstagramDownloader(MediaDownloader):
         return DownloadResult(
             media=[MediaItem(file_path=m["file_path"], type=m["type"]) for m in media_files],
             title=caption if caption else "Instagram Post",
-            description=caption,
-            author=uploader.strip(),
+            content=caption,
+            user=uploader.strip(),
         )
 
     def _extract_media_index(self, path_str):

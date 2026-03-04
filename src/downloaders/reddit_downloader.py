@@ -2,6 +2,7 @@ import os
 import requests
 from downloaders.media_downloader import MediaDownloader
 from models.download_result import DownloadResult, MediaItem
+from models.user_feedback import UnsupportedMediaType
 from services.logger import debug
 from pathlib import Path
 from RedDownloader import RedDownloader
@@ -27,7 +28,7 @@ class RedditDownloader(MediaDownloader):
         title = post_data.get("title", "")
         selftext = post_data.get("selftext", "")
         subreddit = post_data.get("subreddit", "")
-        author = post_data.get("author", "")
+        user_handle = post_data.get("author", "")
         external_url = post_data.get("url_overridden_by_dest", "")
 
         if post_data.get("is_gallery"):
@@ -51,10 +52,31 @@ class RedditDownloader(MediaDownloader):
             media=[MediaItem(file_path=m["file_path"], type=m["type"]) for m in media_files],
             title=title,
             external_url=external_url,
-            description=selftext,
-            author=f"u/{author}",
+            content=selftext,
+            user=f"u/{user_handle}",
             subreddit=f"r/{subreddit}",
         )
+
+    async def download_audio(self, url):
+        json_url = url + "/.json"
+        r = requests.get(json_url, headers=self.headers)
+        r.raise_for_status()
+        data = r.json()
+        post_data = data[0]["data"]["children"][0]["data"]
+
+        if not post_data.get("is_video"):
+            raise UnsupportedMediaType("Audio not available for this Reddit post.")
+
+        video_url = (
+            post_data.get("media", {})
+            .get("reddit_video", {})
+            .get("dash_url")
+        )
+
+        if not video_url:
+            raise UnsupportedMediaType("Audio not available for this Reddit post.")
+
+        return await super().download_audio(video_url)
 
 
     async def _download_video(self, url, media_files):

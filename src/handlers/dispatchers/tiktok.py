@@ -19,8 +19,8 @@ class TikTokVideoDispatcher(BaseDispatcher):
             result = downloader.download_photos(url)
             media_list = result.media
             title = result.title
-            description = result.description
-            author = result.author
+            content = result.content
+            user = result.user
 
             debug("[TikTok] image downloaded")
 
@@ -35,7 +35,7 @@ class TikTokVideoDispatcher(BaseDispatcher):
                 if media.type == "audio"
             ]
 
-            caption = build_tiktok_photo_caption(title, description, author, final_url)
+            caption = build_tiktok_photo_caption(title, content, user, final_url)
             await self.send_message(sender, photo_list, caption)
             for audio_path in audio_paths:
                 await sender.send_audio(audio_path)
@@ -44,11 +44,11 @@ class TikTokVideoDispatcher(BaseDispatcher):
         result = await downloader.download_video(final_url)
         video_path = result.first_media_path()
         title = result.title
-        description = result.description
-        author = result.author
+        content = result.content
+        user = result.user
 
         debug("[TikTok] video downloaded")
-        caption = build_tiktok_video_caption(title, description, author, final_url)
+        caption = build_tiktok_video_caption(title, content, user, final_url)
         await self.send_message(
             sender,
             DownloadResult.from_single(video_path, "video").media,
@@ -68,7 +68,7 @@ class TikTokAudioDispatcher(BaseDispatcher):
         if "/photo/" in final_url:
             return await _VIDEO_DISPATCHER.run(update, context, url)
 
-        result = downloader.download_audio(final_url)
+        result = await downloader.download_audio(final_url)
         audio_path = result.first_media_path()
 
         debug("[TikTok] audio downloaded")

@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from downloaders.media_downloader import MediaDownloader
 from models.download_result import DownloadResult, MediaItem
+from models.user_feedback import UnsupportedMediaType
 
 
 class ThreadsDownloader(MediaDownloader):
@@ -23,11 +24,11 @@ class ThreadsDownloader(MediaDownloader):
         caption = body_text_container.get_text(strip=True) if body_text_container else ""
 
         name_container = soup.find("div", class_="NameContainer")
-        author = ""
+        user = ""
         if name_container:
             span = name_container.find("span")
             if span:
-                author = span.get_text(strip=True)
+                user = span.get_text(strip=True)
 
         media_containers = soup.select(".MediaContainer, .SoloMediaContainer")
 
@@ -78,11 +79,41 @@ class ThreadsDownloader(MediaDownloader):
 
         return DownloadResult(
             media=[MediaItem(file_path=m["file_path"], type=m["type"]) for m in media_files],
-            description=caption,
-            author=author,
             content=caption,
-            user=author,
+            user=user,
         )
+
+    async def download_audio(self, url):
+        self.reset_temp_dir()
+        response = requests.get(url)
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        media_containers = soup.select(".MediaContainer, .SoloMediaContainer")
+        video_url = None
+
+        for container in media_containers:
+            video = container.find("video")
+            if video:
+                source = video.find("source")
+                if source and source.get("src"):
+                    video_url = urljoin(url, source["src"])
+                    break
+
+        if not video_url:
+            raise UnsupportedMediaType("Audio not available for this Threads post.")
+
+        audio_path = os.path.join(self.temp_dir, "audio.mp3")
+
+        raw_path = os.path.join(self.temp_dir, "audio_source.mp4")
+        self._download_file(video_url, raw_path)
+        self.extract_audio(raw_path, audio_path)
+        if os.path.exists(raw_path):
+            os.remove(raw_path)
+
+        if not os.path.exists(audio_path):
+            raise RuntimeError("Audio file not found after conversion.")
+
+        return DownloadResult(media=[MediaItem(file_path=audio_path, type="audio")])
 
 
     def _download_file(self, url, path):

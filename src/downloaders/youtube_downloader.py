@@ -20,16 +20,16 @@ class YouTubeDownloader(MediaDownloader):
         return DownloadResult(
             media=[MediaItem(file_path=video_path, type="video")],
             title=info.get('title', 'unknown'),
-            description=info.get('description', ''),
-            author=info.get('uploader', 'unknown'),
+            content=info.get('description', ''),
+            user=info.get('uploader', 'unknown'),
         )
 
-    def download_audio(self, url):
+    async def download_audio(self, url):
         info = json.loads(self.get_info_ytdlp(url))
         duration = info.get("duration", 0)
         if duration > self.max_duration:
             raise MediaTooLong(f"Audio too long. Maximum allowed duration is {self.max_duration}s.")
 
-        result = super().download_audio(url)
+        result = await super().download_audio(url)
         result.title = info.get("title", "")
         return result

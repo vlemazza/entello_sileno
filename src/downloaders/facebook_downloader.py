@@ -13,6 +13,6 @@ class FacebookDownloader(MediaDownloader):
         return DownloadResult(
             media=[MediaItem(file_path=video_path, type="video")],
             title=data.get("title") or "Facebook Video",
-            description=data.get("description") or "",
-            author=(data.get("uploader") or "").strip(),
+            content=data.get("description") or "",
+            user=(data.get("uploader") or "").strip(),
         )

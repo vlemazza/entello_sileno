@@ -15,12 +15,12 @@ class YouTubeVideoDispatcher(BaseDispatcher):
         result = await downloader.download_video(url)
         video_path = result.first_media_path()
         title = result.title
-        description = result.description[:800]
-        author = result.author
+        content = result.content[:800]
+        user = result.user
 
         debug("[YouTube] video downloaded")
 
-        caption = build_youtube_caption(title, description, author, url)
+        caption = build_youtube_caption(title, content, user, url)
         await self.send_message(
             sender,
             DownloadResult.from_single(video_path, "video").media,
@@ -35,7 +35,7 @@ class YouTubeAudioDispatcher(BaseDispatcher):
         return YouTubeDownloader()
 
     async def process(self, update, context, url, downloader, sender):
-        result = downloader.download_audio(url)
+        result = await downloader.download_audio(url)
         audio_path = result.first_media_path()
 
         debug("[YouTube] audio downloaded")

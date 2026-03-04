@@ -34,8 +34,13 @@ class TwitterDownloader(MediaDownloader):
         if items:
             data = items[0][2]
             content = data.get("content") or data.get("full_text") or data.get("text") or ""
-            author = data.get("author") or {}
-            user = author.get("nick") or author.get("name") or author.get("username") or "Unknown"
+            author_data = data.get("author") or {}
+            user = (
+                author_data.get("nick")
+                or author_data.get("name")
+                or author_data.get("username")
+                or "Unknown"
+            )
             media = True
         else:
             try:
@@ -87,7 +92,6 @@ class TwitterDownloader(MediaDownloader):
         return DownloadResult(
             media=[MediaItem(file_path=m["file_path"], type=m["type"]) for m in media_files]
         )
-
 
     async def search_metadata(self, data, search):
         if isinstance(data, dict):

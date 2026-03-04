@@ -51,6 +51,19 @@ class MediaDownloader:
         ]
         subprocess.run(command, check=True)
 
+    def extract_audio(self, input_file, output_file):
+        command = [
+            "nice", "-n", "19",
+            "ffmpeg",
+            "-i", str(input_file),
+            "-vn",
+            "-c:a", "libmp3lame",
+            "-b:a", "192k",
+            "-y",
+            str(output_file),
+        ]
+        subprocess.run(command, check=True)
+
     def finalize_video(self, input_file, max_mb=None):
         threshold = max_mb or self.MAX_VIDEO_MB
         size_mb = self._get_size_mb(input_file)
@@ -119,7 +132,7 @@ class MediaDownloader:
         final_path = self.finalize_video(self.original_path)
         return final_path
 
-    def download_audio(self, url, cookies_file=None):
+    async def download_audio(self, url, cookies_file=None, impersonate=False):
         self.reset_temp_dir()
 
         info = json.loads(self.get_info_ytdlp(url))
@@ -136,6 +149,10 @@ class MediaDownloader:
         cookies = self.cookies_file if cookies_file is None else cookies_file
         if cookies:
             cmd.extend(["--cookies", cookies])
+
+        if impersonate:
+            cmd.extend(["--impersonate", self.IMPERSONATE_BROWSER])
+
         cmd.append(url)
 
         info = json.loads(self.get_info_ytdlp(url))

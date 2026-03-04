@@ -21,8 +21,8 @@ class TikTokDownloader(MediaDownloader):
         return DownloadResult(
             media=[MediaItem(file_path=output_path, type="video")],
             title=data.get("title") or "TikTok Video",
-            description=data.get("description") or "",
-            author=(data.get("uploader") or "").strip(),
+            content=data.get("description") or "",
+            user=(data.get("uploader") or "").strip(),
         )
 
     def download_photos(self, url):
@@ -51,13 +51,13 @@ class TikTokDownloader(MediaDownloader):
 
             return DownloadResult(
                 media=[MediaItem(file_path=m["file_path"], type=m["type"]) for m in media_files],
-                description=data.get("desc") or "",
-                author=(data["author"]["nickname"] or "").strip(),
+                content=data.get("desc") or "",
+                user=(data["author"]["nickname"] or "").strip(),
             )
 
-    def download_audio(self, url):
+    async def download_audio(self, url):
         data = json.loads(self.get_info_ytdlp(url))
-        result = super().download_audio(url)
+        result = await super().download_audio(url)
         result.title = data.get("title") or "TikTok Audio"
-        result.author = (data.get("uploader") or "").strip()
+        result.user = (data.get("uploader") or "").strip()
         return result

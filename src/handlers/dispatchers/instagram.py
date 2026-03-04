@@ -28,12 +28,12 @@ class InstagramDispatcher(BaseDispatcher):
 
         media_list = result.media
         title = result.title
-        description = result.description
-        author = result.author
+        content = result.content
+        user = result.user
 
         debug("[Instagram] media downloaded")
 
-        caption = build_instagram_caption(title, description, author, url)
+        caption = build_instagram_caption(title, content, user, url)
         
         await self.send_message(sender, media_list, caption)
 
@@ -49,6 +49,9 @@ class InstagramAudioDispatcher(BaseDispatcher):
 
         if not "/reel/" in parsed.path:
             raise UnsupportedMediaType("Audio not supported for this Instagram link. Only Reels are supported for audio.")
+
+            result = await downloader.download_audio(url)
+            audio_path = result.first_media_path()
 
         debug("[Instagram] audio downloaded")
         await sender.send_audio(audio_path)    

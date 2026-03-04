@@ -9,8 +9,6 @@ class DownloadResult:
         self,
         media=None,
         title="",
-        description="",
-        author="",
         content="",
         user="",
         external_url="",
@@ -19,8 +17,6 @@ class DownloadResult:
     ):
         self.media = media or []
         self.title = title
-        self.description = description
-        self.author = author
         self.content = content
         self.user = user
         self.external_url = external_url
