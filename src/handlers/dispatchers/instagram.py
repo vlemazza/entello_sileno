@@ -47,7 +47,7 @@ class InstagramAudioDispatcher(BaseDispatcher):
         parsed = urlparse(url)
         normalized_url = urlunparse((parsed.scheme, parsed.netloc, parsed.path, '', '', ''))
 
-        if "/reel/" in parsed.path:
+        if not "/reel/" in parsed.path:
             raise UnsupportedMediaType("Audio not supported for this Instagram link. Only Reels are supported for audio.")
 
         debug("[Instagram] audio downloaded")
