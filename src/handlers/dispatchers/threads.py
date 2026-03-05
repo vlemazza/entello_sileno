@@ -12,7 +12,7 @@ class ThreadsDispatcher(BaseDispatcher):
         return ThreadsDownloader()
 
     async def process(self, update, context, url, downloader, sender):
-        result = downloader.fetch_post(url)
+        result = await downloader.fetch_post(url)
 
         content = result.content or ""
         user = result.user or ""

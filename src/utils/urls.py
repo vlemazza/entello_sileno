@@ -1,5 +1,5 @@
 import re
-import requests
+import aiohttp
 from urllib.parse import urlparse, urlunparse
 
 def extract_url(text):
@@ -15,14 +15,14 @@ def extract_domain(url):
     return netloc
 
 
-def normalize_twitter_url(url):
+async def normalize_twitter_url(url):
     parsed = urlparse(url)
     netloc = parsed.netloc
     if netloc and netloc != "x.com":
         return urlunparse(parsed._replace(netloc="x.com"))
     return url
 
-def normalize_threads_embed_url(url):
+async def normalize_threads_embed_url(url):
 
     parsed = urlparse(url)
 
@@ -36,13 +36,11 @@ def normalize_threads_embed_url(url):
 
     return f"https://www.threads.com/{username}/post/{post_id}/embed"
 
-def resolve_reddit_redirect(url):
-
-    response = requests.get(url, allow_redirects=True)
-
-    final_url = response.url
-
-    return _normalize_reddit_url(final_url)  
+async def resolve_reddit_redirect(url):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url, allow_redirects=True) as response:
+            final_url = str(response.url)
+    return _normalize_reddit_url(final_url)
 
 
 def _normalize_reddit_url(url):

@@ -2,6 +2,8 @@ python-telegram-bot[ext]
 instaloader
 python-dotenv
 aiofiles
+aiohttp
+aiosqlite
 gallery-dl
 RedDownloader
 bs4

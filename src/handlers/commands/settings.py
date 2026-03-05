@@ -21,8 +21,8 @@ DOWNLOADER_LABELS = {
 }
 
 
-def _build_settings_keyboard(chat_id: int):
-    settings = get_chat_settings(chat_id)
+async def _build_settings_keyboard(chat_id: int):
+    settings = await get_chat_settings(chat_id)
 
     meme_label = "Meme: ON" if settings.memes_enabled else "Meme: OFF"
     rows = [
@@ -50,8 +50,8 @@ def _build_settings_keyboard(chat_id: int):
     return InlineKeyboardMarkup(rows)
 
 
-def _build_settings_text(chat_id: int):
-    settings = get_chat_settings(chat_id)
+async def _build_settings_text(chat_id: int):
+    settings = await get_chat_settings(chat_id)
     disabled = sorted(settings.disabled_downloaders)
     disabled_labels = (
         ", ".join(DOWNLOADER_LABELS[item] for item in disabled)
@@ -72,10 +72,12 @@ async def handle_settings_command(update: Update, context: ContextTypes.DEFAULT_
         return
 
     chat_id = update.effective_chat.id
+    text = await _build_settings_text(chat_id)
+    keyboard = await _build_settings_keyboard(chat_id)
     await update.message.reply_text(
-        _build_settings_text(chat_id),
+        text,
         parse_mode="Markdown",
-        reply_markup=_build_settings_keyboard(chat_id),
+        reply_markup=keyboard,
     )
 
 
@@ -96,11 +98,11 @@ async def handle_settings_callback(update: Update, context: ContextTypes.DEFAULT
 
     try:
         if len(parts) == 3 and parts[2] == "meme":
-            enabled = toggle_memes(chat_id)
+            enabled = await toggle_memes(chat_id)
             await query.answer("Meme attivati" if enabled else "Meme disattivati")
         elif len(parts) == 4 and parts[2] == "downloader":
             downloader = parts[3]
-            disabled = toggle_downloader(chat_id, downloader)
+            disabled = await toggle_downloader(chat_id, downloader)
             status_text = "disabilitato" if disabled else "riattivato"
             await query.answer(f"{DOWNLOADER_LABELS[downloader]} {status_text}")
         else:
@@ -110,8 +112,11 @@ async def handle_settings_callback(update: Update, context: ContextTypes.DEFAULT
         await query.answer("Downloader non supportato", show_alert=True)
         return
 
+    text = await _build_settings_text(chat_id)
+    keyboard = await _build_settings_keyboard(chat_id)
+    
     await query.edit_message_text(
-        _build_settings_text(chat_id),
+        text,
         parse_mode="Markdown",
-        reply_markup=_build_settings_keyboard(chat_id),
+        reply_markup=keyboard,
     )

@@ -33,7 +33,7 @@ class MediaDownloader:
     def _get_size_mb(self, path):
         return os.path.getsize(path) / (1024 * 1024)
 
-    def compress_video(self, input_file, output_file):
+    async def compress_video(self, input_file, output_file):
         command = [
             "nice", "-n", "19",
             "ffmpeg",
@@ -49,9 +49,16 @@ class MediaDownloader:
             "-y",
             str(output_file)
         ]
-        subprocess.run(command, check=True)
+        process = await asyncio.create_subprocess_exec(
+            *command,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        _, stderr = await process.communicate()
+        if process.returncode != 0:
+            raise RuntimeError(f"[MediaDownloader] ffmpeg compress failed: {stderr.decode()}")
 
-    def extract_audio(self, input_file, output_file):
+    async def extract_audio(self, input_file, output_file):
         command = [
             "nice", "-n", "19",
             "ffmpeg",
@@ -62,15 +69,22 @@ class MediaDownloader:
             "-y",
             str(output_file),
         ]
-        subprocess.run(command, check=True)
+        process = await asyncio.create_subprocess_exec(
+            *command,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        _, stderr = await process.communicate()
+        if process.returncode != 0:
+            raise RuntimeError(f"[MediaDownloader] ffmpeg extract failed: {stderr.decode()}")
 
-    def finalize_video(self, input_file, max_mb=None):
+    async def finalize_video(self, input_file, max_mb=None):
         threshold = max_mb or self.MAX_VIDEO_MB
         size_mb = self._get_size_mb(input_file)
         if size_mb <= threshold:
             return str(input_file)
 
-        self.compress_video(input_file, self.compressed_path)
+        await self.compress_video(input_file, self.compressed_path)
         return str(self.compressed_path)
 
     def set_cookies_from_env(self, env_var, label):
@@ -79,7 +93,7 @@ class MediaDownloader:
             raise ValueError(f"File cookie non impostato per {label}")
         self.cookies_file = cookies_file
 
-    def get_info_ytdlp(self, url, cookies_file=None):
+    async def get_info_ytdlp(self, url, cookies_file=None):
         cmd = ["yt-dlp", "--dump-single-json"]
         cookies = self.cookies_file if cookies_file is None else cookies_file
 
@@ -88,8 +102,18 @@ class MediaDownloader:
 
         cmd.append(url)
 
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-        return result.stdout
+        process = await asyncio.create_subprocess_exec(
+            *cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+
+        stdout, stderr = await process.communicate()
+
+        if process.returncode != 0:
+            error(f"[MediaDownloader] Error dump info: {stderr.decode()}")
+            raise RuntimeError("[MediaDownloader] dump info failed")
+        return stdout.decode()
 
     async def download_video(self, url, cookies_file=None, impersonate=False):
         self.reset_temp_dir()
@@ -129,13 +153,13 @@ class MediaDownloader:
         if not os.path.exists(self.original_path):
             raise FileNotFoundError("File non trovato dopo il download.")
 
-        final_path = self.finalize_video(self.original_path)
+        final_path = await self.finalize_video(self.original_path)
         return final_path
 
     async def download_audio(self, url, cookies_file=None, impersonate=False):
         self.reset_temp_dir()
 
-        info = json.loads(self.get_info_ytdlp(url))
+        info = json.loads(await self.get_info_ytdlp(url))
         title = info.get("title", "")
 
         output_path = os.path.join(self.temp_dir, f"{title}.%(ext)s")
@@ -155,19 +179,26 @@ class MediaDownloader:
 
         cmd.append(url)
 
-        info = json.loads(self.get_info_ytdlp(url))
-        title = info.get("title", "")
+        process = await asyncio.create_subprocess_exec(
+            *cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
 
         try:
-            subprocess.run(cmd, check=True, timeout=300)
-        except subprocess.CalledProcessError as e:
-            raise RuntimeError(f"[MediaDownloader] Errore download audio: {e}")
-        except subprocess.TimeoutExpired:
+            _, stderr = await asyncio.wait_for(process.communicate(), timeout=300)
+
+        except asyncio.TimeoutError:
+            process.kill()
+            await process.wait()
             raise TimeoutError("[MediaDownloader] Timeout durante il download")
+
+        if process.returncode != 0:
+            raise RuntimeError(f"[MediaDownloader] Error download audio: {stderr.decode()}")
 
         final_path = os.path.join(self.temp_dir, f"{title}.mp3")
 
         if not os.path.exists(final_path):
-            raise FileNotFoundError("File non trovato dopo il download.")
+            raise FileNotFoundError("File not found.")
 
         return DownloadResult(media=[MediaItem(file_path=final_path, type="audio")])

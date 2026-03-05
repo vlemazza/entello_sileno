@@ -1,5 +1,6 @@
 import os
-import requests
+import asyncio
+import aiohttp
 from downloaders.media_downloader import MediaDownloader
 from models.download_result import DownloadResult, MediaItem
 from models.user_feedback import UnsupportedMediaType
@@ -19,9 +20,10 @@ class RedditDownloader(MediaDownloader):
 
         json_url = url + "/.json"
 
-        r = requests.get(json_url, headers=self.headers)
-        r.raise_for_status()
-        data = r.json()
+        async with aiohttp.ClientSession(headers=self.headers) as session:
+            async with session.get(json_url) as response:
+                response.raise_for_status()
+                data = await response.json()
 
         post_data = data[0]["data"]["children"][0]["data"]
 
@@ -59,9 +61,10 @@ class RedditDownloader(MediaDownloader):
 
     async def download_audio(self, url):
         json_url = url + "/.json"
-        r = requests.get(json_url, headers=self.headers)
-        r.raise_for_status()
-        data = r.json()
+        async with aiohttp.ClientSession(headers=self.headers) as session:
+            async with session.get(json_url) as response:
+                response.raise_for_status()
+                data = await response.json()
         post_data = data[0]["data"]["children"][0]["data"]
 
         if not post_data.get("is_video"):
@@ -89,7 +92,7 @@ class RedditDownloader(MediaDownloader):
 
 
     async def _download_image(self, url, media_files):  
-        RedDownloader.Download(url , destination=self.temp_dir)    
+        await asyncio.to_thread(RedDownloader.Download, url, destination=self.temp_dir)
         for path_obj in Path(self.temp_dir).rglob("*"):
             if path_obj.is_file():
                 media_files.append({

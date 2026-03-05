@@ -11,7 +11,7 @@ class YouTubeDownloader(MediaDownloader):
     
 
     async def download_video(self, url):
-        info = json.loads(self.get_info_ytdlp(url))
+        info = json.loads(await self.get_info_ytdlp(url))
         duration = info.get('duration', 0)
         if duration > self.max_duration:
             raise MediaTooLong(f"Video too long. Maximum allowed duration is {self.max_duration}s.")
@@ -25,7 +25,7 @@ class YouTubeDownloader(MediaDownloader):
         )
 
     async def download_audio(self, url):
-        info = json.loads(self.get_info_ytdlp(url))
+        info = json.loads(await self.get_info_ytdlp(url))
         duration = info.get("duration", 0)
         if duration > self.max_duration:
             raise MediaTooLong(f"Audio too long. Maximum allowed duration is {self.max_duration}s.")

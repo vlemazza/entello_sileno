@@ -1,5 +1,6 @@
 import os
 import re
+import asyncio
 from pathlib import Path
 import json
 import subprocess
@@ -19,7 +20,7 @@ class InstagramDownloader(MediaDownloader):
 
     async def fetch_video_post(self, url):
         video_path = await self.download_video(url)
-        data = json.loads(self.get_info_ytdlp(url))
+        data = json.loads(await self.get_info_ytdlp(url))
         return DownloadResult(
             media=[MediaItem(file_path=video_path, type="video")],
             title=data.get("title") or "Instagram Video",
@@ -48,11 +49,17 @@ class InstagramDownloader(MediaDownloader):
         ]
         
 
-        subprocess.run(
-            cmd,
+        process = await asyncio.create_subprocess_exec(
+            *cmd,
             cwd=self.temp_dir,
-            timeout=120
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
         )
+        
+        _, stderr = await asyncio.wait_for(process.communicate(), timeout=120)
+
+        if process.returncode != 0:
+            raise RuntimeError(f"Instaloader failed: {stderr.decode()}")
 
         save_dir = os.path.join(self.temp_dir, f"-{shortcode}")
 

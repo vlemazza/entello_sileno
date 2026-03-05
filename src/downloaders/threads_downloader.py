@@ -1,5 +1,7 @@
 import os
-import requests
+import asyncio
+import aiohttp
+import aiofiles
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from downloaders.media_downloader import MediaDownloader
@@ -12,11 +14,13 @@ class ThreadsDownloader(MediaDownloader):
     def __init__(self):
         super().__init__()
 
-    def fetch_post(self, url):
+    async def fetch_post(self, url):
 
         self.reset_temp_dir()
-        response = requests.get(url)
-        soup = BeautifulSoup(response.text, 'html.parser')
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                html = await response.text()
+        soup = BeautifulSoup(html, 'html.parser')
 
         media_files = []
 
@@ -48,7 +52,7 @@ class ThreadsDownloader(MediaDownloader):
                         f"media_{counter}.{ext}"
                     )
 
-                    self._download_file(media_url, file_path)
+                    await self._download_file(media_url, file_path)
 
                     media_files.append({
                         "file_path": file_path,
@@ -68,7 +72,7 @@ class ThreadsDownloader(MediaDownloader):
                         f"media_{counter}.{ext}"
                     )
 
-                    self._download_file(media_url, file_path)
+                    await self._download_file(media_url, file_path)
 
                     media_files.append({
                         "file_path": file_path,
@@ -85,8 +89,11 @@ class ThreadsDownloader(MediaDownloader):
 
     async def download_audio(self, url):
         self.reset_temp_dir()
-        response = requests.get(url)
-        soup = BeautifulSoup(response.text, 'html.parser')
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                html = await response.text()
+        soup = BeautifulSoup(html, 'html.parser')
 
         media_containers = soup.select(".MediaContainer, .SoloMediaContainer")
         video_url = None
@@ -105,8 +112,8 @@ class ThreadsDownloader(MediaDownloader):
         audio_path = os.path.join(self.temp_dir, "audio.mp3")
 
         raw_path = os.path.join(self.temp_dir, "audio_source.mp4")
-        self._download_file(video_url, raw_path)
-        self.extract_audio(raw_path, audio_path)
+        await self._download_file(video_url, raw_path)
+        await self.extract_audio(raw_path, audio_path)
         if os.path.exists(raw_path):
             os.remove(raw_path)
 
@@ -116,9 +123,10 @@ class ThreadsDownloader(MediaDownloader):
         return DownloadResult(media=[MediaItem(file_path=audio_path, type="audio")])
 
 
-    def _download_file(self, url, path):
-        r = requests.get(url, stream=True)
-        r.raise_for_status()
-
-        with open(path, "wb") as f:
-            f.write(r.content)
+    async def _download_file(self, url, path):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                response.raise_for_status()
+                data = await response.read()
+        async with aiofiles.open(path, "wb") as f:
+            await f.write(data)

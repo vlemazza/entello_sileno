@@ -8,7 +8,7 @@ from services.db.dao_db import is_downloader_disabled
 from utils.waiting_message_loader import get_waiting_messages
 from handlers.incoming_message import incoming_message
 
-def resolve_handler(url):
+async def resolve_handler(url):
     if "**" in url:
         return "generic", handle_generic, url.lstrip("*")
 
@@ -20,10 +20,11 @@ def resolve_handler(url):
 
     service_info = service.value
     normalizer = service_info.get("normalize")
+
     try:
-        target_url = normalizer(clean_url) if normalizer else clean_url
-    except Exception as exc:
-        debug("[Dispatchers] normalize failed for %s: %s", service_info["name"], exc)
+        target_url = await normalizer(clean_url) if normalizer else clean_url
+    except Exception as e:
+        debug("[Dispatchers] normalize failed for %s: %s", service_info["name"], e)
         return None, None, None
 
     handler = service_info.get("audio_handler") if audio_requested else service_info.get("handler")
@@ -64,11 +65,11 @@ async def url_handler(update, context):
     if not url:
         return
 
-    source_service, handler, target_url = resolve_handler(url)
+    source_service, handler, target_url = await resolve_handler(url)
     if handler is None:
         return
 
-    if is_downloader_disabled(update.effective_chat.id, source_service):
+    if await is_downloader_disabled(update.effective_chat.id, source_service):
         debug("[Dispatchers] %s disabled, chat id: %s", source_service, update.effective_chat.id)
         return
 

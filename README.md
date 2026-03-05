@@ -12,6 +12,7 @@ Self-hosted Telegram bot that downloads media and text from supported links with
 - Supports audio-only downloads with `*` prefix.
 - Generic attempt with `**` prefix.
 - Access control via user and group whitelists.
+- Concurrent message handling
 
 ## Supported sites
 - YouTube

@@ -1,4 +1,5 @@
 import os
+import asyncio
 from pathlib import Path
 from gallery_dl import config
 from gallery_dl.extractor import find
@@ -22,7 +23,7 @@ class BlueSkyVideoDownloader(MediaDownloader):
         extractor.initialize()
 
 
-        items = list(extractor.items())
+        items = await asyncio.to_thread(lambda: list(extractor.items()))
         
         content = ""
         user = "Unknown"
@@ -61,7 +62,7 @@ class BlueSkyVideoDownloader(MediaDownloader):
 
 
         job = DownloadJob(url)
-        job.run() 
+        await asyncio.to_thread(job.run)
 
         for path in sorted(Path(self.temp_dir).rglob("*"), key=lambda item: str(item)):
             if not path.is_file():
@@ -73,7 +74,7 @@ class BlueSkyVideoDownloader(MediaDownloader):
                 media_type = "image"
             elif ext in self.VIDEO_EXT:
                 media_type = "video"
-                path = self.finalize_video(str(path))
+                path = await self.finalize_video(str(path))
 
             else:
                 continue

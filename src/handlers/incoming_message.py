@@ -16,7 +16,7 @@ async def incoming_message(update):
         await inform_user(update)
         return None
 
-    settings = get_chat_settings(update.effective_chat.id)
+    settings = await get_chat_settings(update.effective_chat.id)
     text = message.text
 
     if settings.memes_enabled:

@@ -9,7 +9,7 @@ class FacebookDownloader(MediaDownloader):
 
     async def fetch_post(self, url):
         video_path = await self.download_video(url, impersonate=True)
-        data = json.loads(self.get_info_ytdlp(url))
+        data = json.loads(await self.get_info_ytdlp(url))
         return DownloadResult(
             media=[MediaItem(file_path=video_path, type="video")],
             title=data.get("title") or "Facebook Video",

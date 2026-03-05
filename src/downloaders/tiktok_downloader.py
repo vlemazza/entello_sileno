@@ -1,6 +1,6 @@
 import os
 import json
-import subprocess
+import asyncio
 from downloaders.media_downloader import MediaDownloader
 from models.download_result import DownloadResult, MediaItem
 from pathlib import Path
@@ -13,7 +13,7 @@ class TikTokDownloader(MediaDownloader):
     async def download_video(self, url):
 
         self.reset_temp_dir()
-        data = json.loads(self.get_info_ytdlp(url))
+        data = json.loads(await self.get_info_ytdlp(url))
         output_path = await super().download_video(url)
         if not os.path.exists(output_path):
             raise FileNotFoundError("File not found.")
@@ -25,7 +25,7 @@ class TikTokDownloader(MediaDownloader):
             user=(data.get("uploader") or "").strip(),
         )
 
-    def download_photos(self, url):
+    async def download_photos(self, url):
             self.reset_temp_dir()
             media_files = []
          
@@ -36,7 +36,16 @@ class TikTokDownloader(MediaDownloader):
                 "--write-info-json",
                 url
             ]
-            subprocess.run(cmd, check=True)
+            process = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+
+            _, stderr = await process.communicate()
+            
+            if process.returncode != 0:
+                raise RuntimeError(f"gallery-dl failed: {stderr.decode()}")
 
             for path_obj in Path(self.temp_dir).rglob("*"):
                 file_path = str(path_obj)
@@ -56,7 +65,7 @@ class TikTokDownloader(MediaDownloader):
             )
 
     async def download_audio(self, url):
-        data = json.loads(self.get_info_ytdlp(url))
+        data = json.loads(await self.get_info_ytdlp(url))
         result = await super().download_audio(url)
         result.title = data.get("title") or "TikTok Audio"
         result.user = (data.get("uploader") or "").strip()

@@ -1,23 +1,34 @@
 import os
-import sqlite3
+import asyncio
+import aiosqlite
 from services.db.entity import ChatSettings
 
 class Repository:
     def __init__(self):
         env_db_path = os.getenv("DB_PATH", "").strip()
         self.db_path = env_db_path or "/bot/db/entello.db"
-        self._initialize()
+        self._initialized = False
+        self._init_lock = asyncio.Lock()
 
-    def _initialize(self):
+    async def _initialize(self):
         directory = os.path.dirname(self.db_path)
         if directory:
             os.makedirs(directory, exist_ok=True)
-        with sqlite3.connect(self.db_path) as conn:
-            self._ensure_schema(conn)
-            conn.commit()
+        async with aiosqlite.connect(self.db_path) as conn:
+            await self._ensure_schema(conn)
+            await conn.commit()
 
-    def _ensure_schema(self, conn: sqlite3.Connection):
-        conn.execute(
+    async def _initialize_once(self):
+        if self._initialized:
+            return
+        async with self._init_lock:
+            if self._initialized:
+                return
+            await self._initialize()
+            self._initialized = True
+
+    async def _ensure_schema(self, conn: aiosqlite.Connection):
+        await conn.execute(
             """
             CREATE TABLE IF NOT EXISTS chat_settings (
                 chat_id INTEGER PRIMARY KEY,
@@ -25,7 +36,7 @@ class Repository:
             )
             """
         )
-        conn.execute(
+        await conn.execute(
             """
             CREATE TABLE IF NOT EXISTS disabled_downloaders (
                 chat_id INTEGER NOT NULL,
@@ -36,9 +47,9 @@ class Repository:
             """
         )
 
-    def _ensure_chat_row(self, conn: sqlite3.Connection, chat_id: int):
-        self._ensure_schema(conn)
-        conn.execute(
+    async def _ensure_chat_row(self, conn: aiosqlite.Connection, chat_id: int):
+        await self._ensure_schema(conn)
+        await conn.execute(
             """
             INSERT OR IGNORE INTO chat_settings(chat_id, memes_enabled)
             VALUES (?, 1)
@@ -46,19 +57,22 @@ class Repository:
             (chat_id,),
         )
 
-    def get_chat_settings(self, chat_id: int):
-        with sqlite3.connect(self.db_path) as conn:
-            self._ensure_chat_row(conn, chat_id)
-            row = conn.execute(
+    async def get_chat_settings(self, chat_id: int):
+        await self._initialize_once()
+        async with aiosqlite.connect(self.db_path) as conn:
+            await self._ensure_chat_row(conn, chat_id)
+            row = await conn.execute(
                 "SELECT memes_enabled FROM chat_settings WHERE chat_id = ?",
                 (chat_id,),
-            ).fetchone()
-            downloader_rows = conn.execute(
+            )
+            row = await row.fetchone()
+            downloader_rows = await conn.execute(
                 "SELECT downloader FROM disabled_downloaders WHERE chat_id = ?",
                 (chat_id,),
-            ).fetchall()
+            )
+            downloader_rows = await downloader_rows.fetchall()
 
-            conn.commit()
+            await conn.commit()
 
         memes_enabled = bool(row[0]) if row else True
         disabled_downloaders = {entry[0] for entry in downloader_rows}
@@ -68,53 +82,57 @@ class Repository:
             disabled_downloaders=disabled_downloaders,
         )
 
-    def toggle_memes(self, chat_id: int):
-        with sqlite3.connect(self.db_path) as conn:
-            self._ensure_chat_row(conn, chat_id)
-            row = conn.execute(
+    async def toggle_memes(self, chat_id: int):
+        await self._initialize_once()
+        async with aiosqlite.connect(self.db_path) as conn:
+            await self._ensure_chat_row(conn, chat_id)
+            row = await conn.execute(
                 "SELECT memes_enabled FROM chat_settings WHERE chat_id = ?",
                 (chat_id,),
-            ).fetchone()
+            )
+            row = await row.fetchone()
             current_value = bool(row[0]) if row else True
             new_value = 0 if current_value else 1
 
-            conn.execute(
+            await conn.execute(
                 "UPDATE chat_settings SET memes_enabled = ? WHERE chat_id = ?",
                 (new_value, chat_id),
             )
-            conn.commit()
+            await conn.commit()
 
         return bool(new_value)
 
-    def toggle_downloader(self, chat_id: int, downloader: str):
-        with sqlite3.connect(self.db_path) as conn:
-            self._ensure_chat_row(conn, chat_id)
-            row = conn.execute(
+    async def toggle_downloader(self, chat_id: int, downloader: str):
+        await self._initialize_once()
+        async with aiosqlite.connect(self.db_path) as conn:
+            await self._ensure_chat_row(conn, chat_id)
+            row = await conn.execute(
                 """
                 SELECT 1
                 FROM disabled_downloaders
                 WHERE chat_id = ? AND downloader = ?
                 """,
                 (chat_id, downloader),
-            ).fetchone()
+            )
+            row = await row.fetchone()
 
             if row:
-                conn.execute(
+                await conn.execute(
                     """
                     DELETE FROM disabled_downloaders
                     WHERE chat_id = ? AND downloader = ?
                     """,
                     (chat_id, downloader),
                 )
-                conn.commit()
+                await conn.commit()
                 return False
 
-            conn.execute(
+            await conn.execute(
                 """
                 INSERT INTO disabled_downloaders(chat_id, downloader)
                 VALUES (?, ?)
                 """,
                 (chat_id, downloader),
             )
-            conn.commit()
+            await conn.commit()
             return True
