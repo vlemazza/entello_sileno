@@ -31,7 +31,7 @@ async def handle_help_command(update: Update, context: ContextTypes.DEFAULT_TYPE
         "- /settings modificare impostazioni per chat.\n"
         "- /help invia questo help.\n\n"
 
-        "Nessuna scimmia viene maltratta!\n\n"
+        "Nessuna scimmia viene maltrattata!\n\n"
 
         "### open source [repo github](https://github.com/vlemazza/entello_sileno) ###",
 

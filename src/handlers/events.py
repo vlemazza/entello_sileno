@@ -46,9 +46,9 @@ async def handle_bot_added_group(update: Update, context: ContextTypes.DEFAULT_T
         "- /settings modificare impostazioni per chat.\n"
         "- /help invia questo help.\n\n"
 
-        "Nessuna scimmia viene maltratta!\n\n"
+        "Nessuna scimmia viene maltrattata!\n\n"
 
-        "### open source [repo github](https://github.com/vlemazza/entello_sileno) ###"
+        "### open source [repo github](https://github.com/vlemazza/entello_sileno) ###",
 
         parse_mode="Markdown"
 )
