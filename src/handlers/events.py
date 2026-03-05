@@ -23,34 +23,32 @@ async def handle_bot_added_group(update: Update, context: ContextTypes.DEFAULT_T
 
     await chat.send_message(
         "La scimmia è con te!\n\n"
-        "Manda un link e lo scaricherà.\n\n"
+        "Scaricherà i media e il testo associato.\n\n"
 
-        "*Supporto:*\n"
-            "- YouTube  video, audio\n"
-            "- Instagram  video, immagini\n"
-            "- TikTok  video, immagini\n"
-            "- Reddit  video, immagini\n"
-            "- Twitter  video, immagini, testo e fanculo Musk\n"
-            "- Bluesky video, immagini, testo\n\n"
-            "- Facebook video\n\n"
-            "- Threads video, immagini, testo\n\n"
-
-
-        "*Prossimamente:*\n"
-            "- diVines\n\n"
-
-        "Chiedete e sarà aggiunto\n\n"
+        "*Siti supportati:*\n"
+            "- YouTube\n"
+            "- Instagram\n"
+            "- TikTok\n"
+            "- Reddit\n"
+            "- Twitter\n"
+            "- Bluesky\n"
+            "- Facebook\n"
+            "- Threads\n\n"
 
         "*How to asteriscare:*\n"
-        "- `*` prima di un link YouTube scarica solo audio\n"
+        "- `*` prima di un link scarica solo audio\n"
         "  esempio: `*https://www.youtube.com/watch?v=dQw4w9WgXcQ`\n\n"
 
-        "- `**` prima di qualsiasi link ci prova comunque\n"
+        "- `**` prima di qualsiasi link ci prova anche se non supportato\n"
         "  esempio: `**https://alavi.me/blog/e-ink-tablet-as-monitor-linux/`\n\n"
+
+        "*Comandi:*\n"
+        "- /settings modificare impostazioni per chat.\n"
+        "- /help invia questo help.\n\n"
 
         "Nessuna scimmia viene maltratta!\n\n"
 
-        "### open source [repo github](https://github.com/vlemazza/entello_sileno) ###",
+        "### open source [repo github](https://github.com/vlemazza/entello_sileno) ###"
 
         parse_mode="Markdown"
 )
