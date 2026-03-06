@@ -17,6 +17,7 @@ DOWNLOADER_LABELS = {
     "bluesky": "Bluesky",
     "facebook": "Facebook",
     "threads": "Threads",
+    "vimeo": "Vimeo",
     "generic": "Generic (**)",
 }
 

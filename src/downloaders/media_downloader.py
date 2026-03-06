@@ -5,7 +5,7 @@ import json
 import tempfile
 import asyncio
 from pathlib import Path
-from services.logger import error
+from services.logger import error, debug
 from models.download_result import DownloadResult, MediaItem
 
 
@@ -54,7 +54,7 @@ class MediaDownloader:
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
-        _, stderr = await process.communicate()
+        stdout, stderr = await process.communicate()
         if process.returncode != 0:
             raise RuntimeError(f"[MediaDownloader] ffmpeg compress failed: {stderr.decode()}")
 
@@ -76,13 +76,15 @@ class MediaDownloader:
         )
         _, stderr = await process.communicate()
         if process.returncode != 0:
-            raise RuntimeError(f"[MediaDownloader] ffmpeg extract failed: {stderr.decode()}")
+            raise RuntimeError(f"[MediaDownloader] ffmpeg extract failed: {stderr.decode()} MB")
 
     async def finalize_video(self, input_file, max_mb=None):
         threshold = max_mb or self.MAX_VIDEO_MB
         size_mb = self._get_size_mb(input_file)
         if size_mb <= threshold:
             return str(input_file)
+
+        debug(f"[MediaDownloader] compressing video: {size_mb}")
 
         await self.compress_video(input_file, self.compressed_path)
         return str(self.compressed_path)
