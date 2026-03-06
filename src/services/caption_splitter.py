@@ -1,3 +1,6 @@
+import re
+
+
 def split_text(text, limit):
     if not text:
         return []
@@ -29,11 +32,19 @@ def split_html_caption(caption, limit):
     if len(caption) <= limit:
         return [caption]
 
-    open_tag = "<blockquote>"
+    open_tag = None
     close_tag = "</blockquote>"
-    start = caption.find(open_tag)
-    end = caption.find(close_tag, start + len(open_tag))
-    if start == -1 or end == -1:
+
+    match = re.search(r"<blockquote\b[^>]*>", caption)
+    if match:
+        open_tag = match.group(0)
+        start = match.start()
+        end = caption.find(close_tag, match.end())
+    else:
+        start = -1
+        end = -1
+
+    if start == -1 or end == -1 or not open_tag:
         return split_text(caption, limit)
 
     header = caption[: start + len(open_tag)]
