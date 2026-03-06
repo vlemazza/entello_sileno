@@ -8,6 +8,7 @@ from handlers.dispatchers.threads import handle_threads, handle_threads_audio
 from handlers.dispatchers.tiktok import handle_tiktok, handle_tiktok_audio
 from handlers.dispatchers.twitter import handle_twitter, handle_twitter_audio
 from handlers.dispatchers.youtube import handle_youtube_audio, handle_youtube_video
+from handlers.dispatchers.vimeo import handle_vimeo_audio, handle_vimeo_video
 from utils.urls import normalize_threads_embed_url, normalize_twitter_url, resolve_reddit_redirect
 
 
@@ -62,4 +63,10 @@ class Service(Enum):
         "handler": handle_threads,
         "normalize": normalize_threads_embed_url,
         "audio_handler": handle_threads_audio,
+    }
+    VIMEO = {
+        "name": "vimeo",
+        "domains": ["vimeo.com"],
+        "handler": handle_vimeo_video,
+        "audio_handler": handle_vimeo_audio,
     }

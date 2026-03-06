@@ -33,7 +33,8 @@ async def handle_bot_added_group(update: Update, context: ContextTypes.DEFAULT_T
             "- Twitter\n"
             "- Bluesky\n"
             "- Facebook\n"
-            "- Threads\n\n"
+            "- Threads\n"
+            "- Vimeo\n\n"
 
         "*How to asteriscare:*\n"
         "- `*` prima di un link scarica solo audio\n"

@@ -9,6 +9,7 @@ SUPPORTED_DOWNLOADERS = (
     "bluesky",
     "facebook",
     "threads",
+    "vimeo",
     "generic",
 )
 

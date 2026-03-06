@@ -74,3 +74,11 @@ def build_threads_caption(content, user, url):
         f"<blockquote>{content}</blockquote>\n"
         f'Source: <a href="{url}">Threads</a>'
     )
+
+def build_vimeo_caption(title, description, user, url):
+    return (
+        f"<b>{title}</b>\n"
+        f"<blockquote expandable>{description}</blockquote>\n"
+        f"<i>{user}</i>\n"
+        f'Source: <a href="{url}">Vimeo</a>'
+    )    

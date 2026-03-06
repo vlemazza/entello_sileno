@@ -52,6 +52,8 @@ def _match_service(clean_url):
         return Service.BLUESKY
     elif domain in Service.THREADS.value["domains"]:
         return Service.THREADS
+    elif domain in Service.VIMEO.value["domains"]:
+        return Service.VIMEO    
     else:
         return None
 
