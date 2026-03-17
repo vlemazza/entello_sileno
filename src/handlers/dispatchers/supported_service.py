@@ -46,7 +46,7 @@ class Service(Enum):
     }
     TWITTER = {
         "name": "twitter",
-        "domains": ["x.com", "nitter.poast.org", "xcancel.com"],
+        "domains": ["x.com", "nitter.poast.org", "xcancel.com", "twitter.com"],
         "handler": handle_twitter,
         "normalize": normalize_twitter_url,
         "audio_handler": handle_twitter_audio,
