@@ -18,6 +18,7 @@ DOWNLOADER_LABELS = {
     "facebook": "Facebook",
     "threads": "Threads",
     "vimeo": "Vimeo",
+    "peertube": "PeerTube",
     "generic": "Generic (**)",
 }
 

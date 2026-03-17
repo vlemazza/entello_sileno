@@ -10,6 +10,7 @@ SUPPORTED_DOWNLOADERS = (
     "facebook",
     "threads",
     "vimeo",
+    "peertube",
     "generic",
 )
 

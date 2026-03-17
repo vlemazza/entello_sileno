@@ -19,7 +19,8 @@ async def handle_help_command(update: Update, context: ContextTypes.DEFAULT_TYPE
             "- Bluesky\n"
             "- Facebook\n"
             "- Threads\n"
-            "- Vimeo\n\n"
+            "- Vimeo\n"
+            "- PeerTube\n\n"
 
         "*How to asteriscare:*\n"
         "- `*` prima di un link scarica solo audio\n"

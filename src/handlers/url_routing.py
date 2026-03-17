@@ -53,7 +53,9 @@ def _match_service(clean_url):
     elif domain in Service.THREADS.value["domains"]:
         return Service.THREADS
     elif domain in Service.VIMEO.value["domains"]:
-        return Service.VIMEO    
+        return Service.VIMEO
+    elif domain in Service.PEERTUBE.value["domains"]:
+        return Service.PEERTUBE        
     else:
         return None
 
