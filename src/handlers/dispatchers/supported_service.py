@@ -9,7 +9,7 @@ from handlers.dispatchers.tiktok import handle_tiktok, handle_tiktok_audio
 from handlers.dispatchers.twitter import handle_twitter, handle_twitter_audio
 from handlers.dispatchers.youtube import handle_youtube_audio, handle_youtube_video
 from handlers.dispatchers.vimeo import handle_vimeo_audio, handle_vimeo_video
-from utils.urls import normalize_threads_embed_url, normalize_twitter_url, resolve_reddit_redirect
+from utils.urls import normalize_threads_embed_url, normalize_twitter_url, resolve_reddit_redirect, normalize_youtube_url
 
 
 class Service(Enum):
@@ -18,6 +18,7 @@ class Service(Enum):
         "domains": ["youtube.com", "youtu.be"],
         "handler": handle_youtube_video,
         "audio_handler": handle_youtube_audio,
+        "normalize": normalize_youtube_url,
     }
     INSTAGRAM = {
         "name": "instagram",

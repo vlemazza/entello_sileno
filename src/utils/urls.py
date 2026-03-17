@@ -1,6 +1,6 @@
 import re
 import aiohttp
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import urlparse, urlunparse, parse_qs
 
 def extract_url(text):
     match = re.search(r'(\**https?://[^\s]+)', text)
@@ -60,4 +60,20 @@ def _normalize_reddit_url(url):
     subreddit = path_parts[1]
     post_id = path_parts[3]
 
-    return f"https://{netloc}/r/{subreddit}/comments/{post_id}"    
+    return f"https://{netloc}/r/{subreddit}/comments/{post_id}"
+
+async def normalize_youtube_url(url):
+    parsed = urlparse(url)
+    netloc = parsed.netloc
+    path = parsed.path.strip("/")
+
+    if netloc == "youtu.be":
+        video_id = path
+        return f"https://www.youtube.com/watch?v={video_id}"
+
+    query = parse_qs(parsed.query)
+    if 'v' in query:
+        video_id = query['v'][0]
+        return f"https://www.youtube.com/watch?v={video_id}"
+
+    return url
