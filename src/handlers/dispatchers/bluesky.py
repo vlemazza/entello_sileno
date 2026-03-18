@@ -1,4 +1,4 @@
-from downloaders.bluesky_downloader import BlueSkyVideoDownloader
+from downloaders.bluesky_downloader import BlueSkyDownloader
 from handlers.dispatchers.base import BaseDispatcher
 from models.user_feedback import UnsupportedMediaType
 from services.caption_builder import build_bluesky_caption
@@ -9,7 +9,7 @@ class BlueskyDispatcher(BaseDispatcher):
     service_name = "Bluesky"
 
     def create_downloader(self):
-        return BlueSkyVideoDownloader()
+        return BlueSkyDownloader()
 
     async def process(self, update, context, url, downloader, sender):
         result = await downloader.fetch_post(url)
@@ -36,7 +36,7 @@ class BlueskyAudioDispatcher(BaseDispatcher):
     service_name = "Bluesky"
 
     def create_downloader(self):
-        return BlueSkyVideoDownloader()
+        return BlueSkyDownloader()
 
     async def process(self, update, context, url, downloader, sender):
         try:

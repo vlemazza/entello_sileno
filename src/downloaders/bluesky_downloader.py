@@ -9,7 +9,7 @@ from models.download_result import DownloadResult, MediaItem
 
 
 
-class BlueSkyVideoDownloader(MediaDownloader):
+class BlueSkyDownloader(MediaDownloader):
 
     IMAGE_EXT = {".jpg", ".jpeg", ".png", ".webp"}
     VIDEO_EXT = {".mp4", ".webm"}
