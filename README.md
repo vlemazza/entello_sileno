@@ -25,6 +25,7 @@ Self-hosted Telegram bot that downloads media and text from supported links with
 - Threads
 - Vimeo
 - PeerTube
+- 9GAG
 
 ## Usage
 - Private chat: send a link, the bot responds only if the user is whitelisted.

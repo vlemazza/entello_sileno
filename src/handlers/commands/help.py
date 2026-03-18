@@ -20,7 +20,8 @@ async def handle_help_command(update: Update, context: ContextTypes.DEFAULT_TYPE
             "- Facebook\n"
             "- Threads\n"
             "- Vimeo\n"
-            "- PeerTube\n\n"
+            "- PeerTube\n"
+            "- 9GAG\n\n"
 
         "*How to asteriscare:*\n"
         "- `*` prima di un link scarica solo audio\n"

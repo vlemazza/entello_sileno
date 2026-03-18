@@ -11,6 +11,7 @@ SUPPORTED_DOWNLOADERS = (
     "threads",
     "vimeo",
     "peertube",
+    "ninegag",
     "generic",
 )
 

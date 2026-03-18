@@ -55,7 +55,9 @@ def _match_service(clean_url):
     elif domain in Service.VIMEO.value["domains"]:
         return Service.VIMEO
     elif domain in Service.PEERTUBE.value["domains"]:
-        return Service.PEERTUBE        
+        return Service.PEERTUBE
+    elif domain in Service.NINEGAG.value["domains"]:
+        return Service.NINEGAG           
     else:
         return None
 

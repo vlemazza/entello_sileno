@@ -124,6 +124,7 @@ class MediaDownloader:
             "-f", "bv*+ba/best",
             "--merge-output-format", "mp4",
             "--no-playlist",
+            "--recode-video=mp4",
             "--no-warnings",
             "--restrict-filenames",
             "--force-overwrites",
@@ -153,7 +154,7 @@ class MediaDownloader:
             raise RuntimeError("[MediaDownloader] download failed")
 
         if not os.path.exists(self.original_path):
-            raise FileNotFoundError("File non trovato dopo il download.")
+            raise FileNotFoundError("File downlaoded not found.")
 
         final_path = await self.finalize_video(self.original_path)
         return final_path

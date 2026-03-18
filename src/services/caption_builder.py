@@ -104,4 +104,12 @@ def build_peertube_caption(title, description, user, url):
         f"<blockquote expandable>{_esc(description)}</blockquote>\n"
         f"<i>{_esc(user)}</i>\n"
         f'Source: <a href="{_esc_attr(url)}">PeerTube</a>'
-    )     
+    )
+
+def build_9gag_caption(title, description, user, url):
+    return (
+        f"<b>{_esc(title)}</b>\n"
+        f"<blockquote expandable>{_esc(description)}</blockquote>\n"
+        f"<i>{_esc(user)}</i>\n"
+        f'Source: <a href="{_esc_attr(url)}">9GAG</a>'
+    ) 

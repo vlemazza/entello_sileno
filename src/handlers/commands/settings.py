@@ -19,6 +19,7 @@ DOWNLOADER_LABELS = {
     "threads": "Threads",
     "vimeo": "Vimeo",
     "peertube": "PeerTube",
+    "ninegag": "9GAG",
     "generic": "Generic (**)",
 }
 

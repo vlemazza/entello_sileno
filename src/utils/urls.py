@@ -77,3 +77,12 @@ async def normalize_youtube_url(url):
         return f"https://www.youtube.com/watch?v={video_id}"
 
     return url
+
+async def get_9gag_api_url(url):
+    parsed = urlparse(url)
+    path = parsed.path
+
+    match = re.search(r"/gag/([a-zA-Z0-9]+)(?:/|$)", path)
+
+    post_id = match.group(1)
+    return f"https://9gag.com/v1/post?id={post_id}" 

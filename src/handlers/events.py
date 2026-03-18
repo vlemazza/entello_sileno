@@ -35,7 +35,8 @@ async def handle_bot_added_group(update: Update, context: ContextTypes.DEFAULT_T
             "- Facebook\n"
             "- Threads\n"
             "- Vimeo\n"
-            "- PeerTube\n\n"
+            "- PeerTube\n"
+            "- 9GAG\n\n"
 
         "*How to asteriscare:*\n"
         "- `*` prima di un link scarica solo audio\n"
