@@ -1,4 +1,3 @@
-import json
 from downloaders.media_downloader import MediaDownloader
 from models.download_result import DownloadResult, MediaItem
 
@@ -9,7 +8,7 @@ class FacebookDownloader(MediaDownloader):
 
     async def fetch_post(self, url):
         video_path = await self.download_video(url, impersonate=True)
-        data = json.loads(await self.get_info_ytdlp(url))
+        data = await self.get_info_from_ytdlp(url)
         return DownloadResult(
             media=[MediaItem(file_path=video_path, type="video")],
             title=data.get("title") or "Facebook Video",

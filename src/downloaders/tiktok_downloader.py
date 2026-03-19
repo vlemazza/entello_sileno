@@ -12,8 +12,7 @@ class TikTokDownloader(MediaDownloader):
 
     async def download_video(self, url):
 
-        self.reset_temp_dir()
-        data = json.loads(await self.get_info_ytdlp(url))
+        data = await self.get_info_from_ytdlp(url)
         output_path = await super().download_video(url)
         if not os.path.exists(output_path):
             raise FileNotFoundError("File not found.")
@@ -50,7 +49,7 @@ class TikTokDownloader(MediaDownloader):
             for path_obj in Path(self.temp_dir).rglob("*"):
                 file_path = str(path_obj)
                 file_name = file_path.lower()
-                if file_name.endswith((".jpg", ".jpeg", ".png", ".webp")):
+                if Path(file_name).suffix.lower() in self.IMAGE_EXT:
                     media_files.append({"file_path": file_path, "type": "image"})
                 elif file_name.endswith(".mp3"):
                     media_files.append({"file_path": file_path, "type": "audio"})
@@ -65,7 +64,7 @@ class TikTokDownloader(MediaDownloader):
             )
 
     async def download_audio(self, url):
-        data = json.loads(await self.get_info_ytdlp(url))
+        data = await self.get_info_from_ytdlp(url)
         result = await super().download_audio(url)
         result.title = data.get("title") or "TikTok Audio"
         result.user = (data.get("uploader") or "").strip()

@@ -84,6 +84,9 @@ DB_PATH=/bot/db/entello.db
 - gallery-dl
 - RedDownloader
 - beautifulsoup4
+- FFmpeg
+
+
 
 
 

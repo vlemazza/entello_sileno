@@ -20,7 +20,7 @@ class InstagramDownloader(MediaDownloader):
 
     async def fetch_video_post(self, url):
         video_path = await self.download_video(url)
-        data = json.loads(await self.get_info_ytdlp(url))
+        data = await self.get_info_from_ytdlp(url)
         return DownloadResult(
             media=[MediaItem(file_path=video_path, type="video")],
             title=data.get("title") or "Instagram Video",
@@ -67,7 +67,7 @@ class InstagramDownloader(MediaDownloader):
         uploader = ""
 
         for file in Path(save_dir).rglob("*"):
-            if file.suffix.lower() in {".jpg", ".jpeg", ".png", ".webp"}:
+            if file.suffix.lower() in self.IMAGE_EXT:
                 media_files.append({
                     "file_path": str(file),
                     "type": "image",

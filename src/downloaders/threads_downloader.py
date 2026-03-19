@@ -1,7 +1,6 @@
 import os
 import asyncio
 import aiohttp
-import aiofiles
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from downloaders.media_downloader import MediaDownloader
@@ -122,11 +121,3 @@ class ThreadsDownloader(MediaDownloader):
 
         return DownloadResult(media=[MediaItem(file_path=audio_path, type="audio")])
 
-
-    async def _download_file(self, url, path):
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as response:
-                response.raise_for_status()
-                data = await response.read()
-        async with aiofiles.open(path, "wb") as f:
-            await f.write(data)

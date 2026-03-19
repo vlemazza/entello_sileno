@@ -1,7 +1,6 @@
 import os
 import asyncio
 import aiohttp
-from pathlib import Path
 from utils.urls import get_9gag_api_url
 from downloaders.media_downloader import MediaDownloader
 from models.download_result import DownloadResult, MediaItem
@@ -12,14 +11,6 @@ class NineGagDownloader(MediaDownloader):
 
     def __init__(self):
         super().__init__()
-
-    async def _download_file(self, url, path):
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as response:
-                response.raise_for_status()
-                data = await response.read()
-        await asyncio.to_thread(Path(path).write_bytes, data)
-
 
     async def fetch_post(self, url):
         api_url = await get_9gag_api_url(url)

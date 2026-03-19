@@ -1,4 +1,3 @@
-import json
 from downloaders.tiktok_downloader import TikTokDownloader
 from handlers.dispatchers.base import BaseDispatcher
 from models.download_result import DownloadResult
@@ -13,7 +12,7 @@ class TikTokVideoDispatcher(BaseDispatcher):
         return TikTokDownloader()
 
     async def process(self, update, context, url, downloader, sender):
-        info = json.loads(await downloader.get_info_ytdlp(url))
+        info = await downloader.get_info_from_ytdlp(url)
         final_url = info.get("webpage_url") or info.get("original_url") or url
 
         if "/photo/" in final_url:
@@ -64,7 +63,7 @@ class TikTokAudioDispatcher(BaseDispatcher):
         return TikTokDownloader()
 
     async def process(self, update, context, url, downloader, sender):
-        info = json.loads(await downloader.get_info_ytdlp(url))
+        info = await downloader.get_info_from_ytdlp(url)
         final_url = info.get("webpage_url") or info.get("original_url") or url
 
         if "/photo/" in final_url:

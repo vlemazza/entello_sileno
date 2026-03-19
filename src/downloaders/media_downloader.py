@@ -5,6 +5,10 @@ import json
 import tempfile
 import asyncio
 from pathlib import Path
+import aiohttp
+from gallery_dl import config
+from gallery_dl.extractor import find
+from gallery_dl.job import DownloadJob
 from services.logger import error, debug
 from models.download_result import DownloadResult, MediaItem
 
@@ -12,6 +16,8 @@ from models.download_result import DownloadResult, MediaItem
 class MediaDownloader:
     MAX_VIDEO_MB = 50
     IMPERSONATE_BROWSER = "Firefox-135"
+    IMAGE_EXT = {".jpg", ".jpeg", ".png", ".webp"}
+    VIDEO_EXT = {".mp4", ".webm"}
 
     def __init__(self):
         self.temp_dir = tempfile.mkdtemp()
@@ -95,7 +101,7 @@ class MediaDownloader:
             raise ValueError(f"File cookie non impostato per {label}")
         self.cookies_file = cookies_file
 
-    async def get_info_ytdlp(self, url, cookies_file=None):
+    async def _get_info_ytdlp(self, url, cookies_file=None):
         cmd = ["yt-dlp", "--dump-single-json"]
         cookies = self.cookies_file if cookies_file is None else cookies_file
 
@@ -116,6 +122,9 @@ class MediaDownloader:
             error(f"[MediaDownloader] Error dump info: {stderr.decode()}")
             raise RuntimeError("[MediaDownloader] dump info failed")
         return stdout.decode()
+
+    async def get_info_from_ytdlp(self, url, cookies_file=None):
+        return json.loads(await self._get_info_ytdlp(url, cookies_file=cookies_file))
 
     async def download_video(self, url, cookies_file=None, impersonate=False):
         self.reset_temp_dir()
@@ -162,7 +171,7 @@ class MediaDownloader:
     async def download_audio(self, url, cookies_file=None, impersonate=False):
         self.reset_temp_dir()
 
-        info = json.loads(await self.get_info_ytdlp(url))
+        info = await self.get_info_from_ytdlp(url, cookies_file=cookies_file)
         title = info.get("title", "")
 
         output_path = os.path.join(self.temp_dir, f"{title}.%(ext)s")
@@ -205,3 +214,50 @@ class MediaDownloader:
             raise FileNotFoundError("File not found.")
 
         return DownloadResult(media=[MediaItem(file_path=final_path, type="audio")])
+
+    async def _download_file(self, url, path, headers=None):
+        req_headers = headers or self.headers
+        async with aiohttp.ClientSession(headers=req_headers) as session:
+            async with session.get(url) as response:
+                response.raise_for_status()
+                data = await response.read()
+        await asyncio.to_thread(Path(path).write_bytes, data)
+
+    async def gallery_dl_download_media(
+        self,
+        url,
+        extractor_key,
+    ):
+        self.reset_temp_dir()
+
+        config.set(("extractor", extractor_key), "directory", "")
+        config.set(("extractor", extractor_key), "base-directory", self.temp_dir)
+
+        extractor = find(url)
+        extractor.initialize()
+
+        job = DownloadJob(url)
+        await asyncio.to_thread(job.run)
+
+        media_files = []
+        for path in sorted(Path(self.temp_dir).rglob("*"), key=lambda item: str(item)):
+            if not path.is_file():
+                continue
+
+            ext = path.suffix.lower()
+            if ext in self.IMAGE_EXT:
+                media_type = "image"
+            elif ext in self.VIDEO_EXT:
+                media_type = "video"
+                path = await self.finalize_video(str(path))
+            else:
+                continue
+
+            media_files.append({
+                "file_path": str(path),
+                "type": media_type,
+            })
+
+        return DownloadResult(
+            media=[MediaItem(file_path=m["file_path"], type=m["type"]) for m in media_files]
+        )

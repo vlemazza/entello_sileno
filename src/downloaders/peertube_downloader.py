@@ -1,5 +1,4 @@
 import os
-import json
 from downloaders.media_downloader import MediaDownloader
 from models.download_result import DownloadResult, MediaItem
 from models.user_feedback import MediaTooLong
@@ -11,7 +10,7 @@ class PeerTubeDownloader(MediaDownloader):
     
 
     async def download_video(self, url):
-        info = json.loads(await self.get_info_ytdlp(url))
+        info = await self.get_info_from_ytdlp(url)
         duration = info.get('duration', 0)
         if duration > self.max_duration:
             raise MediaTooLong(f"Video too long. Maximum allowed duration is {self.max_duration}s.")
@@ -25,7 +24,7 @@ class PeerTubeDownloader(MediaDownloader):
         )
 
     async def download_audio(self, url):
-        info = json.loads(await self.get_info_ytdlp(url))
+        info = await self.get_info_from_ytdlp(url)
         duration = info.get("duration", 0)
         if duration > self.max_duration:
             raise MediaTooLong(f"Audio too long. Maximum allowed duration is {self.max_duration}s.")
