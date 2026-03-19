@@ -20,6 +20,7 @@ DOWNLOADER_LABELS = {
     "vimeo": "Vimeo",
     "peertube": "PeerTube",
     "ninegag": "9GAG",
+    "hackernews": "HackerNews",
     "generic": "Generic (**)",
 }
 

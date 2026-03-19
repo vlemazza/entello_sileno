@@ -113,3 +113,14 @@ def build_9gag_caption(title, description, user, url):
         f"<i>{_esc(user)}</i>\n"
         f'Source: <a href="{_esc_attr(url)}">9GAG</a>'
     ) 
+
+def build_hn_caption(title, user, external_url, text, url):
+    link_line = f"<i>{_esc(external_url)}</i>\n" if external_url else ""
+    text_line = f"<blockquote expandable>{_esc(text)}</blockquote>\n" if text else ""
+    return (
+        f"<b>{_esc(title)}</b>\n\n"
+        f"{link_line}"
+        f"{text_line}"
+        f"<i>{_esc(user)}</i>\n"
+        f'Source: <a href="{_esc_attr(url)}">Hacker News</a>'
+    )

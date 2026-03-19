@@ -11,6 +11,7 @@ from handlers.dispatchers.youtube import handle_youtube_audio, handle_youtube_vi
 from handlers.dispatchers.vimeo import handle_vimeo_audio, handle_vimeo_video
 from handlers.dispatchers.peertube import handle_peertube_audio, handle_peertube_video
 from handlers.dispatchers.nine_gag import handle_9gag_audio, handle_9gag
+from handlers.dispatchers.hackernews import handle_hackernews
 from utils.urls import normalize_threads_embed_url, normalize_twitter_url, resolve_reddit_redirect, normalize_youtube_url
 
 
@@ -84,4 +85,9 @@ class Service(Enum):
         "domains": ["9gag.com"],
         "handler": handle_9gag,
         "audio_handler": handle_9gag_audio,
+    }
+    HACKERNEWS = {
+        "name": "hackernews",
+        "domains": ["news.ycombinator.com", "hn.ycombinator.com"],
+        "handler": handle_hackernews,
     }

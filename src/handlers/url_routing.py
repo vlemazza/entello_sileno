@@ -58,6 +58,8 @@ def _match_service(clean_url):
         return Service.PEERTUBE
     elif domain in Service.NINEGAG.value["domains"]:
         return Service.NINEGAG           
+    elif domain in Service.HACKERNEWS.value["domains"]:
+        return Service.HACKERNEWS
     else:
         return None
 

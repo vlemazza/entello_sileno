@@ -83,6 +83,20 @@ async def get_9gag_api_url(url):
     path = parsed.path
 
     match = re.search(r"/gag/([a-zA-Z0-9]+)(?:/|$)", path)
+    if not match:
+        raise ValueError("Cannot extract 9GAG post id from URL")
 
     post_id = match.group(1)
     return f"https://9gag.com/v1/post?id={post_id}" 
+
+async def get_hn_item_id(url):
+    parsed = urlparse(url)
+    query = parse_qs(parsed.query)
+    if "id" in query and query["id"]:
+        return query["id"][0]
+
+    match = re.search(r"/item/(\d+)(?:/|$)", parsed.path)
+    if match:
+        return match.group(1)
+
+    raise ValueError("Cannot extract Hacker News item id from URL")
