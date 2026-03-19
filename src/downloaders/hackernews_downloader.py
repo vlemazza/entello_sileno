@@ -1,4 +1,6 @@
 import aiohttp
+import re
+from html import unescape
 from downloaders.media_downloader import MediaDownloader
 from models.download_result import DownloadResult
 from utils.urls import get_hn_item_id
@@ -20,7 +22,7 @@ class HackerNewsDownloader(MediaDownloader):
                 data = await response.json()
 
         title = data.get("title", "")
-        content = data.get("text", "") or ""
+        content = self._clean_hn_text(data.get("text", "") or "")
         user = data.get("by", "")
         external_url = data.get("url", "")
 
@@ -32,3 +34,18 @@ class HackerNewsDownloader(MediaDownloader):
             external_url=external_url,
             has_media=False,
         )
+
+    def _clean_hn_text(self, text):
+        if not text:
+            return ""
+        value = unescape(text)
+        value = re.sub(r"<\s*p\s*/?>", "\n", value, flags=re.IGNORECASE)
+        value = re.sub(r"<\s*/\s*p\s*>", "\n", value, flags=re.IGNORECASE)
+        value = re.sub(
+            r'<\s*a\s+[^>]*href="([^"]+)"[^>]*>.*?<\s*/\s*a\s*>',
+            r"\1",
+            value,
+            flags=re.IGNORECASE | re.DOTALL,
+        )
+        value = re.sub(r"<[^>]+>", "", value)
+        return value.strip()
