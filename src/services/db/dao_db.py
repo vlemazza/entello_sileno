@@ -13,6 +13,7 @@ SUPPORTED_DOWNLOADERS = (
     "peertube",
     "ninegag",
     "hackernews",
+    "pinterest",
     "generic",
 )
 

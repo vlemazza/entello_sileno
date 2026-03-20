@@ -60,6 +60,8 @@ def _match_service(clean_url):
         return Service.NINEGAG           
     elif domain in Service.HACKERNEWS.value["domains"]:
         return Service.HACKERNEWS
+    elif domain in Service.PINTEREST.value["domains"]:
+        return Service.PINTEREST
     else:
         return None
 

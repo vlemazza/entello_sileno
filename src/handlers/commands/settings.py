@@ -21,6 +21,7 @@ DOWNLOADER_LABELS = {
     "peertube": "PeerTube",
     "ninegag": "9GAG",
     "hackernews": "HackerNews",
+    "pinterest": "Pinterest",
     "generic": "Generic (**)",
 }
 
