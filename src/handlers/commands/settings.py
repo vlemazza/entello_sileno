@@ -22,6 +22,7 @@ DOWNLOADER_LABELS = {
     "ninegag": "9GAG",
     "hackernews": "HackerNews",
     "pinterest": "Pinterest",
+    "soundcloud": "SoundCloud",
     "generic": "Generic (**)",
 }
 

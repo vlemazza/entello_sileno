@@ -28,6 +28,7 @@ Self-hosted Telegram bot that downloads media and text from supported links with
 - 9GAG
 - HackerNews
 - Pinterest
+- SoundCloud
 
 ## Usage
 - Private chat: send a link, the bot responds only if the user is whitelisted.

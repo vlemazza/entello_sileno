@@ -14,6 +14,7 @@ SUPPORTED_DOWNLOADERS = (
     "ninegag",
     "hackernews",
     "pinterest",
+    "soundcloud",
     "generic",
 )
 

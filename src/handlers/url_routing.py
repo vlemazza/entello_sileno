@@ -62,6 +62,8 @@ def _match_service(clean_url):
         return Service.HACKERNEWS
     elif domain in Service.PINTEREST.value["domains"]:
         return Service.PINTEREST
+    elif domain in Service.SOUNDCLOUD.value["domains"]:
+        return Service.SOUNDCLOUD
     else:
         return None
 

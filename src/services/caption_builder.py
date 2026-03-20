@@ -122,6 +122,14 @@ def build_pinterest_caption(title, description, user, url):
         f'Source: <a href="{_esc_attr(url)}">Pinterest</a>'
     )
 
+def build_soundcloud_caption(title, description, user, url):
+    return (
+        f"<b>{_esc(title)}</b>\n"
+        f"<blockquote expandable>{_esc(description)}</blockquote>\n"
+        f"<i>{_esc(user)}</i>\n"
+        f'Source: <a href="{_esc_attr(url)}">SoundCloud</a>'
+    )
+
 def build_hn_caption(title, user, external_url, text, url):
     link_line = f"<i>{_esc(external_url)}</i>\n" if external_url else ""
     text_line = f"<blockquote expandable>{_esc(text)}</blockquote>\n" if text else ""

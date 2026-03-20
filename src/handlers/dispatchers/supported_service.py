@@ -13,6 +13,7 @@ from handlers.dispatchers.peertube import handle_peertube_audio, handle_peertube
 from handlers.dispatchers.nine_gag import handle_9gag_audio, handle_9gag
 from handlers.dispatchers.hackernews import handle_hackernews
 from handlers.dispatchers.pinterest import handle_pinterest
+from handlers.dispatchers.soundcloud import handle_soundcloud_audio
 from utils.urls import normalize_threads_embed_url, normalize_twitter_url, resolve_reddit_redirect, normalize_youtube_url
 
 
@@ -96,4 +97,10 @@ class Service(Enum):
         "name": "pinterest",
         "domains": ["pinterest.com", "www.pinterest.com", "it.pinterest.com"],
         "handler": handle_pinterest,
+    }
+    SOUNDCLOUD = {
+        "name": "soundcloud",
+        "domains": ["soundcloud.com"],
+        "handler": handle_soundcloud_audio,
+        "audio_handler": handle_soundcloud_audio,
     }
