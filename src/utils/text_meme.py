@@ -8,6 +8,7 @@ MEME = {
     "india.opus": ["🇮🇳", "india", "dosti"],
     "captain.opus": ["captain", "capitano"],
     "stelio.opus": ["stelio", "kontos"],
+    "persalvini.opus": ["salvini"],
 }
 
 COOLDOWN_GROUPS = {}
