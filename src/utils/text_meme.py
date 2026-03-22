@@ -12,7 +12,7 @@ MEME = {
     "materasso.opus": ["materasso", "dormire", "sonno", "letto"],
     "pentole.opus": ["pentole", "mastrota", "cucinare"],
     "light.opus": ["bello", "intelligente", "light", "yagami", "affascinante"],
-
+    "mooscles.opus": ["muscoli", "palestra","ginnastica"],
 }
 
 COOLDOWN_GROUPS = {}
