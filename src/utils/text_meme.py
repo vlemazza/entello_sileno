@@ -9,6 +9,7 @@ MEME = {
     "captain.opus": ["captain", "capitano"],
     "stelio.opus": ["stelio", "kontos"],
     "persalvini.opus": ["salvini"],
+    "materasso.opus": ["materasso", "mastrota", "dormire", "sonno", "letto"],
 }
 
 COOLDOWN_GROUPS = {}
