@@ -11,6 +11,7 @@ MEME = {
     "persalvini.opus": ["salvini"],
     "materasso.opus": ["materasso", "dormire", "sonno", "letto"],
     "pentole.opus": ["pentole", "mastrota", "cucinare"],
+    "light.opus": ["bello", "intelligente", "light", "yagami", "affascinante"],
 
 }
 
