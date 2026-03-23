@@ -21,7 +21,7 @@ class InstagramDispatcher(BaseDispatcher):
                 result = await downloader.fetch_image_post(normalized_url)
             except Exception:
                 result = await downloader.fetch_video_post(normalized_url)
-        elif "/reel/" in parsed.path:
+        elif "/reel/" or "/stories" in parsed.path:
             result = await downloader.fetch_video_post(normalized_url)
         else:
             raise UnsupportedUrl("Instagram link not supported. Supported: posts (/p/) and reels (/reel/).")
