@@ -9,7 +9,7 @@ MEME = {
     "captain.opus": ["captain", "capitano"],
     "stelio.opus": ["stelio", "kontos"],
     "persalvini.opus": ["salvini"],
-    "materasso.opus": ["materasso", "dormire", "sonno", "letto"],
+    "materasso.opus": ["materasso", "dormire", "sonno"],
     "pentole.opus": ["pentole", "mastrota", "cucinare"],
     "light.opus": ["bello", "intelligente", "light", "yagami", "affascinante"],
     "mooscles.opus": ["muscoli", "palestra","ginnastica"],
