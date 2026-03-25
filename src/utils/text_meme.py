@@ -14,6 +14,7 @@ MEME = {
     "light.opus": ["bello", "intelligente", "light", "yagami", "affascinante"],
     "mooscles.opus": ["muscoli", "palestra","ginnastica"],
     "nani.opus": ["nani"],
+    "meep.opus": ["meep", "woodcock", "bird", "uccello"],
 }
 
 COOLDOWN_GROUPS = {}
