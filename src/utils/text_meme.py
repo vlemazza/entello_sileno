@@ -11,10 +11,11 @@ MEME = {
     "persalvini.opus": ["salvini"],
     "materasso.opus": ["materasso", "dormire", "sonno"],
     "pentole.opus": ["pentole", "mastrota", "cucinare"],
-    "light.opus": ["bello", "intelligente", "light", "yagami", "affascinante"],
+    "light.opus": ["intelligente", "light", "yagami", "affascinante"],
     "mooscles.opus": ["muscoli", "palestra","ginnastica"],
     "nani.opus": ["nani"],
     "meep.opus": ["meep", "woodcock", "bird", "uccello"],
+    "capra.opus": ["capra"],
 }
 
 COOLDOWN_GROUPS = {}
