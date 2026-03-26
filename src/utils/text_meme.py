@@ -19,7 +19,7 @@ MEME = {
 }
 
 COOLDOWN_GROUPS = {}
-COOLDOWN_SECONDS = 300
+COOLDOWN_SECONDS = float(os.getenv("MEME_COOLDOWN", 3600))
 
 
 async def check_meme(update, text):

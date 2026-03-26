@@ -1,3 +1,4 @@
+import os
 from services.db.dao_db import get_chat_settings
 from utils.permissions import chat_not_in_list, inform_user, is_group_whitelisted
 from utils.text_meme import check_meme
@@ -19,7 +20,7 @@ async def incoming_message(update):
     settings = await get_chat_settings(update.effective_chat.id)
     text = message.text
 
-    if settings.memes_enabled:
+    if settings.memes_enabled or os.getenv("MEME", False):
         await check_meme(update, text)
 
     return text
