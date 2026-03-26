@@ -46,6 +46,7 @@ class MediaDownloader:
             "-i", str(input_file),
             "-vf", "scale=-2:720",
             "-c:v", "libx264",
+            "-pix_fmt", "yuv420p",
             "-qp", "35",
             "-preset", "fast",
             "-level", "4.2",
