@@ -12,46 +12,32 @@ class TikTokVideoDispatcher(BaseDispatcher):
         return TikTokDownloader()
 
     async def process(self, update, context, url, downloader, sender):
-        info = await downloader.get_info_from_ytdlp(url)
-        final_url = info.get("webpage_url") or info.get("original_url") or url
-
-        if "/photo/" in final_url:
-            result = await downloader.download_photos(final_url)
-            media_list = result.media
-            title = result.title
-            content = result.content
-            user = result.user
-
-            debug("[TikTok] image downloaded")
-
-            photo_list = [
-                media
-                for media in media_list
-                if media.type == "image"
-            ]
-            audio_paths = [
-                media.file_path
-                for media in media_list
-                if media.type == "audio"
-            ]
-
-            caption = build_tiktok_photo_caption(title, content, user, final_url)
-            await self.send_message(sender, photo_list, caption)
-            for audio_path in audio_paths:
-                await sender.send_audio(audio_path)
-            return
-
-        result = await downloader.download_video(final_url)
-        video_path = result.first_media_path()
+        result = await downloader.fetch_post(url)
+        media_result = await downloader.fetch_media(url)
+        media_list = media_result.media
         title = result.title
         content = result.content
         user = result.user
 
+        debug("[TikTok] post downloaded")
+
+        if media_list and media_list[0].type == "image":
+            debug("[TikTok] image downloaded")
+            photo_list = [m for m in media_list if m.type == "image"]
+
+            caption = build_tiktok_photo_caption(title, content, user, url)
+            await self.send_message(sender, photo_list, caption)
+
+            audio_paths = [m.file_path for m in media_list if m.type == "audio"]
+            for audio_path in audio_paths:
+                await sender.send_audio(audio_path)
+            return
+
         debug("[TikTok] video downloaded")
-        caption = build_tiktok_video_caption(title, content, user, final_url)
+        caption = build_tiktok_video_caption(title, content, user, url)
         await self.send_message(
             sender,
-            DownloadResult.from_single(video_path, "video").media,
+            media_list,
             caption,
         )
 

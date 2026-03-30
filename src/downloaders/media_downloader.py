@@ -233,6 +233,8 @@ class MediaDownloader:
 
         config.set(("extractor", extractor_key), "directory", "")
         config.set(("extractor", extractor_key), "base-directory", self.temp_dir)
+        if self.cookies_file:
+            config.set(("extractor", extractor_key), "cookies", self.cookies_file)
 
         extractor = find(url)
         extractor.initialize()
