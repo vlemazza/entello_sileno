@@ -131,7 +131,7 @@ class MediaDownloader:
         self.reset_temp_dir()
         output_template = os.path.join(self.temp_dir, "video_original.%(ext)s")
         default_args = [
-            "-f", "bv*+ba/best",
+            "-f", "bestvideo[vcodec^=avc1]+bestaudio/best",
             "--merge-output-format", "mp4",
             "--no-playlist",
             "--recode-video=mp4",
