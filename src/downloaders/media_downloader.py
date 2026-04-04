@@ -127,7 +127,7 @@ class MediaDownloader:
     async def get_info_from_ytdlp(self, url, cookies_file=None):
         return json.loads(await self._get_info_ytdlp(url, cookies_file=cookies_file))
 
-    async def download_video(self, url, cookies_file=None, impersonate=False):
+    async def download_video(self, url, cookies_file=None, impersonate=False, curl_cffi=False):
         self.reset_temp_dir()
         output_template = os.path.join(self.temp_dir, "video_original.%(ext)s")
         default_args = [
@@ -149,6 +149,9 @@ class MediaDownloader:
 
         if impersonate:
             cmd.extend(["--impersonate", self.IMPERSONATE_BROWSER])
+
+        if curl_cffi:
+            cmd.extend(["--downloader", "curl_cffi"])
         
         cmd.extend(default_args)
         cmd.append(url)
@@ -169,7 +172,7 @@ class MediaDownloader:
         final_path = await self.finalize_video(self.original_path)
         return final_path
 
-    async def download_audio(self, url, cookies_file=None, impersonate=False):
+    async def download_audio(self, url, cookies_file=None, impersonate=False, curl_cffi=False):
         self.reset_temp_dir()
 
         info = await self.get_info_from_ytdlp(url, cookies_file=cookies_file)
@@ -189,6 +192,9 @@ class MediaDownloader:
 
         if impersonate:
             cmd.extend(["--impersonate", self.IMPERSONATE_BROWSER])
+
+        if curl_cffi:
+            cmd.extend(["--downloader", "curl_cffi"])
 
         cmd.append(url)
 

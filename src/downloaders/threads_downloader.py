@@ -44,17 +44,14 @@ class ThreadsDownloader(MediaDownloader):
                 source = video.find("source")
                 if source and source.get("src"):
                     media_url = urljoin(url, source["src"])
-                    ext = "mp4"
 
-                    file_path = os.path.join(
-                        self.temp_dir,
-                        f"media_{counter}.{ext}"
-                    )
+                    file_path = await self.download_video(media_url, False, True)
 
-                    await self._download_file(media_url, file_path)
+                    new_path = os.path.join(self.temp_dir, f"media_{counter}.mp4")
+                    os.replace(file_path, new_path)
 
                     media_files.append({
-                        "file_path": file_path,
+                        "file_path": new_path,
                         "type": "video",
                     })
 
