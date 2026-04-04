@@ -45,7 +45,7 @@ class ThreadsDownloader(MediaDownloader):
                 if source and source.get("src"):
                     media_url = urljoin(url, source["src"])
 
-                    file_path = await self.download_video(media_url, False, True)
+                    file_path = await self.download_video(media_url, None, True)
 
                     new_path = os.path.join(self.temp_dir, f"media_{counter}.mp4")
                     os.replace(file_path, new_path)
@@ -91,12 +91,23 @@ class ThreadsDownloader(MediaDownloader):
                 html = await response.text()
         soup = BeautifulSoup(html, 'html.parser')
 
+        body_text_container = soup.find(class_="BodyTextContainer")
+        caption = body_text_container.get_text(strip=True) if body_text_container else ""
+
+        name_container = soup.find("div", class_="NameContainer")
+        user = ""
+        if name_container:
+            span = name_container.find("span")
+            if span:
+                user = span.get_text(strip=True)
+
         media_containers = soup.select(".MediaContainer, .SoloMediaContainer")
+
         video_url = None
 
         for container in media_containers:
-            video = container.find("video")
-            if video:
+            videos = container.find_all("video")
+            for video in videos:
                 source = video.find("source")
                 if source and source.get("src"):
                     video_url = urljoin(url, source["src"])
@@ -107,11 +118,10 @@ class ThreadsDownloader(MediaDownloader):
 
         audio_path = os.path.join(self.temp_dir, "audio.mp3")
 
-        raw_path = os.path.join(self.temp_dir, "audio_source.mp4")
-        await self._download_file(video_url, raw_path)
-        await self.extract_audio(raw_path, audio_path)
-        if os.path.exists(raw_path):
-            os.remove(raw_path)
+        video_path = await self.download_video(video_url, None, True)
+        await self.extract_audio(video_path, audio_path)
+        if os.path.exists(video_path):
+            os.remove(video_path)
 
         if not os.path.exists(audio_path):
             raise RuntimeError("Audio file not found after conversion.")
