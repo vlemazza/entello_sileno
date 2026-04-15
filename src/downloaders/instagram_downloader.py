@@ -44,6 +44,7 @@ class InstagramDownloader(MediaDownloader):
             "--no-video-thumbnails",
             "--filename-pattern=a",
             "--no-videos",
+            "--no-compress-json",
             "--",
             f"-{shortcode}",
         ]
@@ -81,7 +82,7 @@ class InstagramDownloader(MediaDownloader):
                 try:
                     with open(file, "r", encoding="utf-8") as f:
                         data = json.load(f)
-                        uploader = data.get("owner_username", "")
+                        uploader = data.get("node", {}).get("owner", {}).get("username", "")
                 except Exception:
                     pass
 
@@ -94,7 +95,6 @@ class InstagramDownloader(MediaDownloader):
         
         return DownloadResult(
             media=[MediaItem(file_path=m["file_path"], type=m["type"]) for m in media_files],
-            title=caption if caption else "Instagram Post",
             content=caption,
             user=uploader.strip(),
         )
