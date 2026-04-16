@@ -13,56 +13,56 @@ def _esc_attr(text):
     return html.escape(str(text), quote=True)
 
 
-def build_youtube_caption(title, description, user, url):
+def build_youtube_caption(title, content, user, url):
     return (
         f"<b>{_esc(title)}</b>\n"
-        f"<blockquote expandable>{_esc(description)}</blockquote>\n"
+        f"<blockquote expandable>{_esc(content)}</blockquote>\n"
         f"<i>{_esc(user)}</i>\n"
         f'Source: <a href="{_esc_attr(url)}">YouTube</a>'
     )
 
 
-def build_instagram_caption(title, description, user, url):
+def build_instagram_caption(title, content, user, url):
     return (
         f"<b>{_esc(title)}</b>\n"
-        f"<blockquote>{_esc(description)}</blockquote>\n"
+        f"<blockquote expandable>{_esc(content)}</blockquote>\n"
         f"<i>{_esc(user)}</i>\n"
         f'Source: <a href="{_esc_attr(url)}">Instagram</a>'
     )
 
 
-def build_facebook_caption(title, description, user, url):
+def build_facebook_caption(title, content, user, url):
     return (
         f"<b>{_esc(title)}</b>\n"
-        f"<blockquote>{_esc(description)}</blockquote>\n"
+        f"<blockquote expandable>{_esc(content)}</blockquote>\n"
         f"<i>{_esc(user)}</i>\n"
         f'Source: <a href="{_esc_attr(url)}">Facebook</a>'
     )
 
 
-def build_tiktok_video_caption(title, description, user, url):
+def build_tiktok_video_caption(title, content, user, url):
     return (
         f"<b>{_esc(title)}</b>\n"
-        f"<blockquote>{_esc(description)}</blockquote>\n"
+        f"<blockquote expandable>{_esc(content)}</blockquote>\n"
         f"<i>{_esc(user)}</i>\n"
         f'Source: <a href="{_esc_attr(url)}">TikTok</a>'
     )
 
 
-def build_tiktok_photo_caption(title, description, user, url):
+def build_tiktok_photo_caption(title, content, user, url):
     return (
         f"<b>{_esc(title)}</b>\n"
-        f"<blockquote expandable>{_esc(description)}</blockquote>\n"
+        f"<blockquote expandable>{_esc(content)}</blockquote>\n"
         f"<i>{_esc(user)}</i>\n"
         f'Source: <a href="{_esc_attr(url)}">TikTok</a>'
     )
 
 
-def build_reddit_caption(title, description, external_url, user, subreddit, url):
+def build_reddit_caption(title, content, external_url, user, subreddit, url):
     return (
         f"<b>{_esc(title)}</b>\n"
         f"<i>{_esc(external_url)}</i>\n"
-        f"<blockquote expandable>{_esc(description)}</blockquote>\n"
+        f"<blockquote expandable>{_esc(content)}</blockquote>\n"
         f"<i>{_esc(subreddit)}</i>\n"
         f"<i>{_esc(user)}</i>\n"
         f'Source: <a href="{_esc_attr(url)}">Reddit</a>'
@@ -72,60 +72,60 @@ def build_reddit_caption(title, description, external_url, user, subreddit, url)
 def build_twitter_caption(content, user, url):
     return (
         f"<b>{_esc(user)}</b>\n"
-        f"<blockquote>{_esc(content)}</blockquote>\n"
+        f"<blockquote expandable>{_esc(content)}</blockquote>\n"
         f'Source: <a href="{_esc_attr(url)}">Twitter</a>'
     )
 
 def build_bluesky_caption(content, user, url):
     return (
         f"<b>{_esc(user)}</b>\n"
-        f"<blockquote>{_esc(content)}</blockquote>\n"
+        f"<blockquote expandable>{_esc(content)}</blockquote>\n"
         f'Source: <a href="{_esc_attr(url)}">Bluesky</a>'
     )
 
 def build_threads_caption(content, user, url):
     return (
         f"<b>{_esc(user)}</b>\n"
-        f"<blockquote>{_esc(content)}</blockquote>\n"
+        f"<blockquote expandable>{_esc(content)}</blockquote>\n"
         f'Source: <a href="{_esc_attr(url)}">Threads</a>'
     )
 
-def build_vimeo_caption(title, description, user, url):
+def build_vimeo_caption(title, content, user, url):
     return (
         f"<b>{_esc(title)}</b>\n"
-        f"<blockquote expandable>{_esc(description)}</blockquote>\n"
+        f"<blockquote expandable>{_esc(content)}</blockquote>\n"
         f"<i>{_esc(user)}</i>\n"
         f'Source: <a href="{_esc_attr(url)}">Vimeo</a>'
     )
 
-def build_peertube_caption(title, description, user, url):
+def build_peertube_caption(title, content, user, url):
     return (
         f"<b>{_esc(title)}</b>\n"
-        f"<blockquote expandable>{_esc(description)}</blockquote>\n"
+        f"<blockquote expandable>{_esc(content)}</blockquote>\n"
         f"<i>{_esc(user)}</i>\n"
         f'Source: <a href="{_esc_attr(url)}">PeerTube</a>'
     )
 
-def build_9gag_caption(title, description, user, url):
+def build_9gag_caption(title, content, user, url):
     return (
         f"<b>{_esc(title)}</b>\n"
-        f"<blockquote expandable>{_esc(description)}</blockquote>\n"
+        f"<blockquote expandable>{_esc(content)}</blockquote>\n"
         f"<i>{_esc(user)}</i>\n"
         f'Source: <a href="{_esc_attr(url)}">9GAG</a>'
     ) 
 
-def build_pinterest_caption(title, description, user, url):
+def build_pinterest_caption(title, content, user, url):
     return (
         f"<b>{_esc(title)}</b>\n"
-        f"<blockquote expandable>{_esc(description)}</blockquote>\n"
+        f"<blockquote expandable>{_esc(content)}</blockquote>\n"
         f"<i>{_esc(user)}</i>\n"
         f'Source: <a href="{_esc_attr(url)}">Pinterest</a>'
     )
 
-def build_soundcloud_caption(title, description, user, url):
+def build_soundcloud_caption(title, content, user, url):
     return (
         f"<b>{_esc(title)}</b>\n"
-        f"<blockquote expandable>{_esc(description)}</blockquote>\n"
+        f"<blockquote expandable>{_esc(content)}</blockquote>\n"
         f"<i>{_esc(user)}</i>\n"
         f'Source: <a href="{_esc_attr(url)}">SoundCloud</a>'
     )
